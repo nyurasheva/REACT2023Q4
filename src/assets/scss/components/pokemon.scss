@@ -15,6 +15,12 @@
 
   }
 
+  &__title {
+    @include font($family: $font-family-title);
+    text-transform: uppercase;
+    margin-top: 20px;
+  }
+
   &__description {
     display: flex;
     justify-content: center;

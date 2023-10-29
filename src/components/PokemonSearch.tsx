@@ -21,36 +21,51 @@ class PokemonSearch extends Component<object, PokemonSearchState> {
     };
   }
 
+  async componentDidMount() {
+    // Проверяем, есть ли сохраненный поисковый запрос в localStorage
+    const savedSearchTerm = localStorage.getItem('searchTerm');
+    if (savedSearchTerm) {
+      await this.fetchPokemonData(savedSearchTerm);
+    } else {
+      await this.fetchPokemonData('');
+    }
+  }
+
   handleSearch = async (searchTerm: string) => {
-    // Start loading
+    await this.fetchPokemonData(searchTerm);
+  };
+
+  async fetchPokemonData(searchTerm: string) {
+    // Старт загрузки
     this.setState({ isLoading: true });
 
-    if (searchTerm === '') {
-      // Handle empty search term (e.g., fetch all Pokémon)
+    if (searchTerm.trim().length === 0) {
       try {
         const response = await fetch('https://pokeapi.co/api/v2/pokemon');
         const data = await response.json();
         const results: Pokemon[] = data.results;
-        this.setState({ searchResults: results });
+        this.setState({ searchResults: results, isLoading: false });
       } catch (error) {
         console.error('Error fetching data:', error);
+        this.setState({ isLoading: false });
       }
     } else {
-      // Handle the API call with the provided search term
       try {
-        const apiUrl = `https://pokeapi.co/api/v2/pokemon/${searchTerm}`;
+        const apiUrl = `https://pokeapi.co/api/v2/pokemon/${searchTerm.toLowerCase()}`;
         const response = await fetch(apiUrl);
-        const data = await response.json();
-        const results: Pokemon[] = [{ name: data.name, url: apiUrl }];
-        this.setState({ searchResults: results });
+        if (response.status === 200) {
+          const data = await response.json();
+          const results: Pokemon[] = [{ name: data.name, url: apiUrl }];
+          this.setState({ searchResults: results, isLoading: false });
+        } else {
+          this.setState({ searchResults: [], isLoading: false });
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
+        this.setState({ searchResults: [], isLoading: false });
       }
     }
-
-    // Stop loading after the API call is completed
-    this.setState({ isLoading: false });
-  };
+  }
 
   render() {
     return (

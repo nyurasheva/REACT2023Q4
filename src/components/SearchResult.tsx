@@ -25,7 +25,7 @@ const SearchResult: React.FC<SearchResultProps> = ({ results, isLoading }) => {
               <div className="pokemon__image">
                 <img src={getPokemonImageUrl(result.name)} alt={result.name} />
               </div>
-              <h3>{result.name}</h3>
+              <h3 className="pokemon__title">{result.name}</h3>
               <div className="pokemon__description">
                 Вас приветствует покемон{' '}
                 {result.name.charAt(0).toUpperCase() + result.name.slice(1)}.
