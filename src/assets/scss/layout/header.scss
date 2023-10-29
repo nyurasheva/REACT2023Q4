@@ -4,15 +4,6 @@
   .row {
     gap: 20px;
     border-bottom: 1px solid #e1e1e1;
-
-    @include media('s') {
-      flex-wrap: wrap;
-      justify-content: end;
-    }
-
-    @include media('xxs') {
-      gap: 0;
-    }
   }
 
   .logo-container {
@@ -22,6 +13,10 @@
     position: relative;
     margin-top: 2px;
 
+    @include media('xs') {
+      min-width: auto;
+    }
+
     .logo-container__image {
       display: inline-block;
       max-height: 80px;
@@ -30,11 +25,7 @@
       text-decoration: none;
 
       @include media('xs') {
-        max-height: 40px;
-      }
-
-      @include media('xxs') {
-        max-height: 30px;
+        max-height: 60px;
       }
     }
   }

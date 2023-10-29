@@ -16,23 +16,24 @@ const SearchResult: React.FC<SearchResultProps> = ({ results, isLoading }) => {
   return (
     <div className="search-results">
       <h2>Результаты поиска</h2>
-      {isLoading && <div>Loading...</div>}
-      {Boolean(results.length) &&
-        !isLoading &&
-        results.map((result, index) => (
-          <div key={index} className="result-item">
-            <div>
-              <img src={getPokemonImageUrl(result.name)} alt={result.name} />
+      <div className="pokemon">
+        {isLoading && <div>Loading...</div>}
+        {Boolean(results.length) &&
+          !isLoading &&
+          results.map((result, index) => (
+            <div key={index} className="result-item pokemon__wrapper">
+              <div className="pokemon__image">
+                <img src={getPokemonImageUrl(result.name)} alt={result.name} />
+              </div>
+              <h3>{result.name}</h3>
+              <div className="pokemon__description">
+                Вас приветствует покемон{' '}
+                {result.name.charAt(0).toUpperCase() + result.name.slice(1)}.
+              </div>
             </div>
-            <h3>{result.name}</h3>
-            <div>
-              Это покемон{' '}
-              {result.name.charAt(0).toUpperCase() + result.name.slice(1)}. Он
-              очень милый!
-            </div>
-          </div>
-        ))}
-      {!Boolean(results.length) && !isLoading && <div>Нет результатов</div>}
+          ))}
+        {!Boolean(results.length) && !isLoading && <div>Нет результатов</div>}
+      </div>
     </div>
   );
 };
