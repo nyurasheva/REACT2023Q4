@@ -1,14 +1,12 @@
-import { Top } from '../components/Top';
 import { Header } from '../components/Header';
-import { Content } from '../components/Content';
+import PokemonSearch from '../components/PokemonSearch';
 import { Footer } from '../components/Footer';
 
 const Main = () => {
   return (
     <div className="tygh">
-      <Top />
       <Header />
-      <Content />
+      <PokemonSearch />
       <Footer />
     </div>
   );

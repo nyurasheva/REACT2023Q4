@@ -1,7 +1,11 @@
+import ErrorThrowButton from './ErrorThrowButton';
+
 const Header = () => {
   return (
     <header className="header container">
-      <div className="row">Шапка</div>
+      <div className="row">
+        <ErrorThrowButton />
+      </div>
     </header>
   );
 };

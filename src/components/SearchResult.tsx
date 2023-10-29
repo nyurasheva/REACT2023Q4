@@ -1,39 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { Pokemon } from './PokemonSearch';
 
-const SearchResult: React.FC = () => {
-  const [searchResults, setSearchResults] = useState([]);
-  const [searchQuery] = useState('');
-  // const [searchQuery, setSearchQuery] = useState('');
+interface SearchResultProps {
+  results: Pokemon[];
+  isLoading: boolean;
+}
 
-  useEffect(() => {
-    // В этом блоке useEffect будет выполнен запрос к выбранному API
-    // Используйте `searchQuery` в запросе для поиска
-
-    if (searchQuery) {
-      fetch(`https://pokeapi.co/api/v2/pokemon`)
-        .then((response) => response.json())
-        .then((data) => {
-          // Обновите состояние `searchResults` с полученными данными
-          setSearchResults(data.results);
-        })
-        .catch((error) => {
-          // Обработка ошибок при запросе
-          console.error('Ошибка при выполнении запроса:', error);
-        });
-    }
-  }, [searchQuery]);
-
+const SearchResult: React.FC<SearchResultProps> = ({ results, isLoading }) => {
   return (
-    <div>
-      {Array.isArray(searchResults) ? (
-        searchResults.map((result, index) => (
-          <div key={index}>
-            {/* Отображение названия и описания элемента */}
+    <div className="search-results">
+      <h2>Результаты поиска</h2>
+      {isLoading && <div>Loading...</div>}
+      {Boolean(results.length) &&
+        !isLoading &&
+        results.map((result, index) => (
+          <div key={index} className="result-item">
+            <h3>{result.name}</h3>
+            <div>{result.url}</div>
           </div>
-        ))
-      ) : (
-        <div>Результаты поиска не найдены</div>
-      )}
+        ))}
+      {!Boolean(results.length) && !isLoading && <div>Нет результатов</div>}
     </div>
   );
 };

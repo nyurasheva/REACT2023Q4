@@ -11,7 +11,7 @@
 /* Components */
 //Повторно используемые компоненты пользовательского интерфейса
 @import 'components/search';
-@import 'components/notFound';
+@import 'components/buttons';
 
 /* Layout */
 //Макет сайта (стили для шапки сайта, футера и боковой панели)
@@ -22,3 +22,4 @@
 /* Pages */
 //Стили, специфичные для каждой страницы
 @import 'pages/main';
+@import 'pages/notFound';

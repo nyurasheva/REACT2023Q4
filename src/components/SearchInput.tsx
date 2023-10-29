@@ -1,41 +1,64 @@
-import React, { useState } from 'react';
+import React, { Component } from 'react';
 
-interface SearchInputProps {
-  onSearch: (searchText: string) => void;
+interface SearchProps {
+  onSearch: (searchTerm: string) => void;
 }
 
-const SearchInput: React.FC<SearchInputProps> = ({ onSearch }) => {
-  const [searchText, setSearchText] = useState<string>('');
+interface SearchState {
+  searchTerm: string;
+}
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText(event.target.value);
-    if (!event.target.value.trim()) {
-      onSearch(event.target.value.trim());
+class SearchInput extends Component<SearchProps, SearchState> {
+  constructor(props: SearchProps) {
+    super(props);
+    this.state = {
+      searchTerm: '',
+    };
+  }
+
+  componentDidMount() {
+    // Retrieve the previous search term from local storage
+    const savedSearchTerm = localStorage.getItem('searchTerm');
+    if (savedSearchTerm) {
+      this.setState({ searchTerm: savedSearchTerm });
+    }
+  }
+
+  handleSearch = () => {
+    const searchTerm = this.state.searchTerm.trim();
+
+    // Save the search term to local storage
+    localStorage.setItem('searchTerm', searchTerm);
+
+    // Trigger the search
+    this.props.onSearch(searchTerm);
+  };
+
+  handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ searchTerm: e.target.value });
+  };
+
+  handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      // Trigger the search when Enter key is pressed
+      this.handleSearch();
     }
   };
 
-  const handleSearch = () => {
-    onSearch(searchText);
-  };
+  render() {
+    return (
+      <div className="search-directory">
+        <input
+          type="text"
+          value={this.state.searchTerm}
+          onChange={this.handleInputChange}
+          onKeyDown={this.handleKeyDown}
+          placeholder="Поиск..."
+        />
+        <button onClick={this.handleSearch}></button>
+      </div>
+    );
+  }
+}
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      onSearch(searchText);
-    }
-  };
-
-  return (
-    <div className="search-directory">
-      <input
-        type="text"
-        placeholder="Поиск..."
-        value={searchText}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-      />
-      <button onClick={handleSearch} tabIndex={-1}></button>
-    </div>
-  );
-};
-
-export { SearchInput };
+export default SearchInput;

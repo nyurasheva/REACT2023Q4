@@ -1,13 +1,11 @@
 import { NavLink } from 'react-router-dom';
 import { MAIN_ROUTE } from '../constants/route';
-import { Top } from '../components/Top';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 
 const NotFound = () => {
   return (
     <div className="tygh">
-      <Top />
       <Header />
       <main className="main container">
         <div className="exception">
