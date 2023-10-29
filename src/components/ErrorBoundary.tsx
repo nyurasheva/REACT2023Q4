@@ -30,7 +30,9 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       return (
         <div>
           <h1>Что-то пошло не так!</h1>
-          <button onClick={this.reloadPage}>Обновить страницу</button>
+          <button className="button-second" onClick={this.reloadPage}>
+            Обновить страницу
+          </button>
         </div>
       );
     }
