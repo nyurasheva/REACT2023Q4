@@ -54,17 +54,19 @@ class PokemonSearch extends Component<object, PokemonSearchState> {
 
   render() {
     return (
-      <div className="content container">
-        <div className="top-section">
-          <SearchInput onSearch={this.handleSearch} />
+      <main>
+        <div className="content container">
+          <div className="top-section">
+            <SearchInput onSearch={this.handleSearch} />
+          </div>
+          <div className="bottom-section">
+            <SearchResult
+              isLoading={this.state.isLoading}
+              results={this.state.searchResults}
+            />
+          </div>
         </div>
-        <div className="bottom-section">
-          <SearchResult
-            isLoading={this.state.isLoading}
-            results={this.state.searchResults}
-          />
-        </div>
-      </div>
+      </main>
     );
   }
 }

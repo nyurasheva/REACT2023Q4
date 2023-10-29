@@ -47,15 +47,17 @@ class SearchInput extends Component<SearchProps, SearchState> {
 
   render() {
     return (
-      <div className="search-directory">
-        <input
-          type="text"
-          value={this.state.searchTerm}
-          onChange={this.handleInputChange}
-          onKeyDown={this.handleKeyDown}
-          placeholder="Поиск..."
-        />
-        <button onClick={this.handleSearch}></button>
+      <div className="row">
+        <div className="search-directory">
+          <input
+            type="text"
+            value={this.state.searchTerm}
+            onChange={this.handleInputChange}
+            onKeyDown={this.handleKeyDown}
+            placeholder="Поиск..."
+          />
+          <button onClick={this.handleSearch}></button>
+        </div>
       </div>
     );
   }

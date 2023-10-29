@@ -1,7 +1,7 @@
 const Footer = () => {
   return (
     <footer className="footer container">
-      <div className="row">Подвал</div>
+      <div className="row">{new Date().getFullYear()}</div>
     </footer>
   );
 };

@@ -3,6 +3,7 @@
 .header {
   .row {
     gap: 20px;
+    border-bottom: 1px solid #e1e1e1;
 
     @include media('s') {
       flex-wrap: wrap;
@@ -23,8 +24,7 @@
 
     .logo-container__image {
       display: inline-block;
-      max-height: 44px;
-      max-height: 50px;
+      max-height: 80px;
       max-width: 100%;
       width: auto;
       text-decoration: none;
