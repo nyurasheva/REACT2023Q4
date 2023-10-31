@@ -1,0 +1,32 @@
+/* header */
+
+.header {
+  .row {
+    gap: 20px;
+    border-bottom: 1px solid #e1e1e1;
+  }
+
+  .logo-container {
+    padding: 15px 0;
+    max-width: 280px;
+    min-width: 150px;
+    position: relative;
+    margin-top: 2px;
+
+    @include media('xs') {
+      min-width: auto;
+    }
+
+    .logo-container__image {
+      display: inline-block;
+      max-height: 80px;
+      max-width: 100%;
+      width: auto;
+      text-decoration: none;
+
+      @include media('xs') {
+        max-height: 60px;
+      }
+    }
+  }
+}
