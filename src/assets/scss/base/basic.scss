@@ -50,13 +50,21 @@ li {
 }
 
 h1 {
-  @include font($family: $font-family-title, $size: $font-size-28, $height: 1.1);
+  @include font(
+    $family: $font-family-title,
+    $size: $font-size-28,
+    $height: 1.1
+  );
   margin-top: 20px;
   margin-bottom: 10px;
 }
 
 h2 {
-  @include font($family: $font-family-title, $size: $font-size-24, $height: 1.1);
+  @include font(
+    $family: $font-family-title,
+    $size: $font-size-24,
+    $height: 1.1
+  );
   color: $text-color;
 }
 
