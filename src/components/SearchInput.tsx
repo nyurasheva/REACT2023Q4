@@ -1,66 +1,49 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface SearchProps {
   onSearch: (searchTerm: string) => void;
 }
 
-interface SearchState {
-  searchTerm: string;
-}
+const SearchInput: React.FC<SearchProps> = ({ onSearch }) => {
+  const [searchTerm, setSearchTerm] = useState('');
 
-class SearchInput extends Component<SearchProps, SearchState> {
-  constructor(props: SearchProps) {
-    super(props);
-    this.state = {
-      searchTerm: '',
-    };
-  }
-
-  componentDidMount() {
-    // Retrieve the previous search term from local storage
+  useEffect(() => {
     const savedSearchTerm = localStorage.getItem('searchTerm');
     if (savedSearchTerm) {
-      this.setState({ searchTerm: savedSearchTerm });
+      setSearchTerm(savedSearchTerm);
     }
-  }
+  }, []);
 
-  handleSearch = () => {
-    const searchTerm = this.state.searchTerm.trim();
-
-    // Save the search term to local storage
-    localStorage.setItem('searchTerm', searchTerm);
-
-    // Trigger the search
-    this.props.onSearch(searchTerm);
+  const handleSearch = () => {
+    const trimmedSearchTerm = searchTerm.trim();
+    localStorage.setItem('searchTerm', trimmedSearchTerm);
+    onSearch(trimmedSearchTerm);
   };
 
-  handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ searchTerm: e.target.value });
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
   };
 
-  handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      // Trigger the search when Enter key is pressed
-      this.handleSearch();
+      handleSearch();
     }
   };
 
-  render() {
-    return (
-      <div className="row">
-        <div className="search-directory">
-          <input
-            type="text"
-            value={this.state.searchTerm}
-            onChange={this.handleInputChange}
-            onKeyDown={this.handleKeyDown}
-            placeholder="Поиск..."
-          />
-          <button onClick={this.handleSearch}></button>
-        </div>
+  return (
+    <div className="row">
+      <div className="search-directory">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Поиск..."
+        />
+        <button onClick={handleSearch}></button>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default SearchInput;

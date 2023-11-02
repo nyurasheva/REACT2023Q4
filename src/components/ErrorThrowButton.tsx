@@ -1,34 +1,20 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 
-interface ErrorThrowButtonState {
-  shouldThrow: boolean;
-}
+const ErrorThrowButton: React.FC = () => {
+  const [shouldThrow, setShouldThrow] = useState(false);
 
-class ErrorThrowButton extends Component<object, ErrorThrowButtonState> {
-  constructor(props: object) {
-    super(props);
-    this.state = {
-      shouldThrow: false,
-    };
-  }
-
-  throwError = () => {
+  const throwError = () => {
     throw new Error('This is a test error!');
   };
 
-  render() {
-    return (
-      <div>
-        <button
-          className="button"
-          onClick={() => this.setState({ shouldThrow: true })}
-        >
-          Выбросить ошибку
-        </button>
-        {this.state.shouldThrow && <div>{this.throwError()}</div>}
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      <button className="button" onClick={() => setShouldThrow(true)}>
+        Выбросить ошибку
+      </button>
+      {shouldThrow && <div>{throwError()}</div>}
+    </div>
+  );
+};
 
 export default ErrorThrowButton;

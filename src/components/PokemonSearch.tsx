@@ -1,4 +1,5 @@
-import React, { Component } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useState } from 'react';
 import SearchResult from './SearchResult';
 import SearchInput from './SearchInput';
 
@@ -14,57 +15,42 @@ interface Ability {
   };
 }
 
-interface PokemonSearchState {
-  searchResults: Pokemon[];
-  isLoading: boolean;
-  abilityDescriptions: { [key: string]: string | null };
-  abilitiesLoading: number;
-  images: { [key: string]: string | null };
-}
+const PokemonSearch: React.FunctionComponent = () => {
+  const [searchResults, setSearchResults] = useState<Pokemon[]>([]);
+  const [isLoading, setLoading] = useState(false);
+  const [abilityDescriptions, setAbilityDescriptions] = useState<{
+    [key: string]: string | null;
+  }>({});
+  const [abilitiesLoading, setAbilitiesLoading] = useState<number>(0);
+  const [images, setImages] = useState<{ [key: string]: string | null }>({});
 
-class PokemonSearch extends Component<object, PokemonSearchState> {
-  constructor(props: object) {
-    super(props);
-    this.state = {
-      searchResults: [],
-      isLoading: false,
-      abilityDescriptions: {},
-      abilitiesLoading: 0,
-      images: {},
-    };
-  }
-
-  async componentDidMount() {
+  useEffect(() => {
     const savedSearchTerm = localStorage.getItem('searchTerm');
     if (savedSearchTerm) {
-      await this.fetchPokemonData(savedSearchTerm);
+      fetchPokemonData(savedSearchTerm);
     } else {
-      await this.fetchPokemonData('');
+      fetchPokemonData('');
     }
 
     const savedAbilityDescriptions = localStorage.getItem(
       'abilityDescriptions'
     );
     if (savedAbilityDescriptions) {
-      this.setState({
-        abilityDescriptions: JSON.parse(savedAbilityDescriptions),
-      });
+      setAbilityDescriptions(JSON.parse(savedAbilityDescriptions));
     }
 
     const savedImages = localStorage.getItem('pokemonImages');
     if (savedImages) {
-      this.setState({
-        images: JSON.parse(savedImages),
-      });
+      setImages(JSON.parse(savedImages));
     }
-  }
+  }, []);
 
-  handleSearch = async (searchTerm: string) => {
-    await this.fetchPokemonData(searchTerm);
+  const handleSearch = async (searchTerm: string) => {
+    await fetchPokemonData(searchTerm);
   };
 
-  async fetchPokemonData(searchTerm: string) {
-    this.setState({ isLoading: true });
+  const fetchPokemonData = async (searchTerm: string) => {
+    setLoading(true);
 
     if (searchTerm.trim().length === 0) {
       try {
@@ -73,13 +59,14 @@ class PokemonSearch extends Component<object, PokemonSearchState> {
         const results: Pokemon[] = data.results;
 
         for (const result of results) {
-          await this.fetchPokemonDetails(result.url, results);
+          await fetchPokemonDetails(result.url, results);
         }
 
-        this.setState({ searchResults: results, isLoading: false });
+        setSearchResults(results);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching data:', error);
-        this.setState({ isLoading: false });
+        setLoading(false);
       }
     } else {
       try {
@@ -87,24 +74,24 @@ class PokemonSearch extends Component<object, PokemonSearchState> {
         const response = await fetch(apiUrl);
         if (response.status === 200) {
           const data = await response.json();
-          this.setState({ searchResults: [data], isLoading: false });
+          setSearchResults([data]);
         } else {
-          this.setState({ searchResults: [], isLoading: false });
+          setSearchResults([]);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
-        this.setState({ searchResults: [], isLoading: false });
+        setSearchResults([]);
+      } finally {
+        setLoading(false);
       }
     }
-  }
+  };
 
-  async fetchPokemonDetails(
+  const fetchPokemonDetails = async (
     pokemonUrl: string,
     searchResults: Pokemon[] | null
-  ) {
-    this.setState((prevState) => ({
-      abilitiesLoading: prevState.abilitiesLoading + 1,
-    }));
+  ) => {
+    setAbilitiesLoading((prevAbilitiesLoading) => prevAbilitiesLoading + 1);
 
     try {
       const response = await fetch(pokemonUrl);
@@ -117,7 +104,7 @@ class PokemonSearch extends Component<object, PokemonSearchState> {
         );
 
         const updatedAbilityDescriptions = {
-          ...this.state.abilityDescriptions,
+          ...abilityDescriptions,
           [data.name]: abilityNames.join(', '),
         };
 
@@ -131,11 +118,11 @@ class PokemonSearch extends Component<object, PokemonSearchState> {
               data.sprites.other['official-artwork'].front_default;
           }
 
-          this.setState((prevState) => ({
-            abilityDescriptions: updatedAbilityDescriptions,
-            abilitiesLoading: prevState.abilitiesLoading - 1,
-            searchResults: updatedResults,
-          }));
+          setAbilityDescriptions(updatedAbilityDescriptions);
+          setAbilitiesLoading(
+            (prevAbilitiesLoading) => prevAbilitiesLoading - 1
+          );
+          setSearchResults(updatedResults);
 
           const updatedImages = updatedResults.reduce(
             (images, result) => {
@@ -149,10 +136,10 @@ class PokemonSearch extends Component<object, PokemonSearchState> {
 
           localStorage.setItem('pokemonImages', JSON.stringify(updatedImages));
         } else {
-          this.setState((prevState) => ({
-            abilityDescriptions: updatedAbilityDescriptions,
-            abilitiesLoading: prevState.abilitiesLoading - 1,
-          }));
+          setAbilityDescriptions(updatedAbilityDescriptions);
+          setAbilitiesLoading(
+            (prevAbilitiesLoading) => prevAbilitiesLoading - 1
+          );
         }
 
         localStorage.setItem(
@@ -162,33 +149,27 @@ class PokemonSearch extends Component<object, PokemonSearchState> {
       }
     } catch (error) {
       console.error('Error fetching abilities:', error);
-      this.setState((prevState) => ({
-        abilitiesLoading: prevState.abilitiesLoading - 1,
-      }));
+      setAbilitiesLoading((prevAbilitiesLoading) => prevAbilitiesLoading - 1);
     }
-  }
+  };
 
-  render() {
-    return (
-      <main>
-        <div className="content container">
-          <div className="top-section">
-            <SearchInput onSearch={this.handleSearch} />
-          </div>
-          <div className="bottom-section">
-            <SearchResult
-              isLoading={
-                this.state.isLoading || this.state.abilitiesLoading > 0
-              }
-              results={this.state.searchResults}
-              abilityDescriptions={this.state.abilityDescriptions}
-              images={this.state.images}
-            />
-          </div>
+  return (
+    <main>
+      <div className="content container">
+        <div className="top-section">
+          <SearchInput onSearch={handleSearch} />
         </div>
-      </main>
-    );
-  }
-}
+        <div className="bottom-section">
+          <SearchResult
+            isLoading={isLoading || abilitiesLoading > 0}
+            results={searchResults}
+            abilityDescriptions={abilityDescriptions}
+            images={images}
+          />
+        </div>
+      </div>
+    </main>
+  );
+};
 
 export default PokemonSearch;
