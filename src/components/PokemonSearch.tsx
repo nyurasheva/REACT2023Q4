@@ -1,7 +1,8 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import SearchResult from './SearchResult';
 import SearchInput from './SearchInput';
+import Pagination from './Pagination';
 
 export interface Pokemon {
   name: string;
@@ -15,7 +16,7 @@ interface Ability {
   };
 }
 
-const PokemonSearch: React.FunctionComponent = () => {
+const PokemonSearch: React.FC = () => {
   const [searchResults, setSearchResults] = useState<Pokemon[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [abilityDescriptions, setAbilityDescriptions] = useState<{
@@ -23,13 +24,20 @@ const PokemonSearch: React.FunctionComponent = () => {
   }>({});
   const [abilitiesLoading, setAbilitiesLoading] = useState<number>(0);
   const [images, setImages] = useState<{ [key: string]: string | null }>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const savedSearchTerm = localStorage.getItem('searchTerm');
+    const pageParam = new URLSearchParams(location.search).get('page');
+    const page = pageParam ? parseInt(pageParam, 10) : 1;
+    setCurrentPage(page);
+
     if (savedSearchTerm) {
-      fetchPokemonData(savedSearchTerm);
+      fetchPokemonData(savedSearchTerm, page);
     } else {
-      fetchPokemonData('');
+      fetchPokemonData('', page);
     }
 
     const savedAbilityDescriptions = localStorage.getItem(
@@ -43,18 +51,25 @@ const PokemonSearch: React.FunctionComponent = () => {
     if (savedImages) {
       setImages(JSON.parse(savedImages));
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
 
-  const handleSearch = async (searchTerm: string) => {
-    await fetchPokemonData(searchTerm);
+  const handleSearch = async (searchTerm: string, page: number) => {
+    await fetchPokemonData(searchTerm, page);
+    navigate(`/search?page=${page}`);
   };
 
-  const fetchPokemonData = async (searchTerm: string) => {
+  const fetchPokemonData = async (searchTerm: string, page: number) => {
     setLoading(true);
+
+    const limit = 20;
+    const offset = (page - 1) * limit;
 
     if (searchTerm.trim().length === 0) {
       try {
-        const response = await fetch('https://pokeapi.co/api/v2/pokemon');
+        const response = await fetch(
+          `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${limit}`
+        );
         const data = await response.json();
         const results: Pokemon[] = data.results;
 
@@ -103,10 +118,13 @@ const PokemonSearch: React.FunctionComponent = () => {
           (ability: Ability) => ability.ability.name
         );
 
-        const updatedAbilityDescriptions = {
-          ...abilityDescriptions,
-          [data.name]: abilityNames.join(', '),
-        };
+        setAbilitiesLoading((prevAbilitiesLoading) => prevAbilitiesLoading - 1);
+        setAbilityDescriptions((prevAbilityDescriptions) => {
+          return {
+            ...prevAbilityDescriptions,
+            [data.name]: abilityNames.join(', '),
+          };
+        });
 
         if (searchResults) {
           const updatedResults = [...searchResults];
@@ -114,38 +132,47 @@ const PokemonSearch: React.FunctionComponent = () => {
             (result) => result.name === data.name
           );
           if (resultIndex !== -1) {
-            updatedResults[resultIndex].image =
+            const imageUrl =
               data.sprites.other['official-artwork'].front_default;
+
+            const imagePromise = new Promise((resolve) => {
+              const image = new Image();
+              image.src = imageUrl;
+              image.onload = () => {
+                resolve(image.src);
+              };
+            });
+
+            const imagePromises = [imagePromise];
+
+            Promise.all(imagePromises).then((images) => {
+              updatedResults[resultIndex].image = images[0] as string;
+
+              setSearchResults(updatedResults);
+
+              const updatedImages = updatedResults.reduce(
+                (images, result) => {
+                  if (result.image) {
+                    images[result.name] = result.image;
+                  }
+                  return images;
+                },
+                {} as { [key: string]: string | null }
+              );
+
+              setImages(updatedImages);
+              localStorage.setItem(
+                'pokemonImages',
+                JSON.stringify(updatedImages)
+              );
+            });
           }
-
-          setAbilityDescriptions(updatedAbilityDescriptions);
-          setAbilitiesLoading(
-            (prevAbilitiesLoading) => prevAbilitiesLoading - 1
-          );
-          setSearchResults(updatedResults);
-
-          const updatedImages = updatedResults.reduce(
-            (images, result) => {
-              if (result.image) {
-                images[result.name] = result.image;
-              }
-              return images;
-            },
-            {} as { [key: string]: string | null }
-          );
-
-          localStorage.setItem('pokemonImages', JSON.stringify(updatedImages));
         } else {
-          setAbilityDescriptions(updatedAbilityDescriptions);
-          setAbilitiesLoading(
-            (prevAbilitiesLoading) => prevAbilitiesLoading - 1
+          localStorage.setItem(
+            'abilityDescriptions',
+            JSON.stringify(abilityDescriptions)
           );
         }
-
-        localStorage.setItem(
-          'abilityDescriptions',
-          JSON.stringify(updatedAbilityDescriptions)
-        );
       }
     } catch (error) {
       console.error('Error fetching abilities:', error);
@@ -157,7 +184,11 @@ const PokemonSearch: React.FunctionComponent = () => {
     <main>
       <div className="content container">
         <div className="top-section">
-          <SearchInput onSearch={handleSearch} />
+          <SearchInput
+            onSearch={(searchTerm: string) =>
+              handleSearch(searchTerm, currentPage)
+            }
+          />
         </div>
         <div className="bottom-section">
           <SearchResult
@@ -165,6 +196,11 @@ const PokemonSearch: React.FunctionComponent = () => {
             results={searchResults}
             abilityDescriptions={abilityDescriptions}
             images={images}
+          />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(searchResults.length)}
+            navigate={navigate}
           />
         </div>
       </div>
