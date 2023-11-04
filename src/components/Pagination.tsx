@@ -4,26 +4,27 @@ import ReactPaginate from 'react-paginate';
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
-  navigate: (to: string) => void;
+  onPageChange: ({ selected }: { selected: number }) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ totalPages, navigate }) => {
-  const handlePageChange = ({ selected }: { selected: number }) => {
-    navigate(`/search?page=${selected + 1}`);
-  };
-
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}) => {
   return (
     <div className="pagination-container">
       <ReactPaginate
         pageCount={totalPages}
         pageRangeDisplayed={5}
         marginPagesDisplayed={2}
-        onPageChange={handlePageChange}
+        onPageChange={onPageChange}
         containerClassName="pagination"
         previousLabel="Назад"
         nextLabel="Вперед"
         activeClassName="active"
         disabledClassName="disabled"
+        initialPage={currentPage - 1}
       />
     </div>
   );
