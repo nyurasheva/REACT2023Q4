@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { Pokemon } from './PokemonSearch';
 import logo from '../assets/img/logo.png';
 
@@ -17,41 +17,27 @@ const SearchResult: React.FC<SearchResultProps> = ({
   isLoading,
   abilityDescriptions,
   images,
-  onItemClick,
   selectedId,
+  onItemClick,
   onClosePokemonDetails,
 }) => {
+  let name: string | null = null;
+
   const handleItemClick = (pokemonName: string) => {
     onItemClick(pokemonName);
+    name = pokemonName;
   };
 
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        if (selectedId) {
-          onClosePokemonDetails();
-        }
-      }
-    };
-
-    if (selectedId) {
-      window.addEventListener('click', handleClickOutside);
+  const handleContainerClick = () => {
+    if (selectedId !== null && name === null) {
+      onClosePokemonDetails();
     }
-
-    return () => {
-      window.removeEventListener('click', handleClickOutside);
-    };
-  }, [selectedId, onClosePokemonDetails]);
+  };
 
   return (
-    <div className="search-results">
+    <div className="search-results" onClick={handleContainerClick}>
       <h2>Результаты поиска</h2>
-      <div className="pokemon" ref={containerRef}>
+      <div className="pokemon">
         {isLoading && <div className="loading">Loading...</div>}
         {Boolean(results.length) &&
           !isLoading &&
