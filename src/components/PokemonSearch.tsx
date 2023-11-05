@@ -35,16 +35,11 @@ const PokemonSearch: React.FC = () => {
   const [images, setImages] = useState<{ [key: string]: string | null }>({});
   const [currentPage, setCurrentPage] = useState<number>(getPageFromUrl());
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
-  const [totalPages, setTotalPages] = useState<number>(0);
-  const navigate = useNavigate();
+  const [totalPages, setTotalPages] = useState<number>(1);
   const location = useLocation();
+  const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-
-  const handleSearchResultClose = () => {
-    setSelectedId(null);
-    navigate(`${location.pathname}?page=${currentPage}`);
-  };
 
   const handleItemClick = (pokemonName: string) => {
     const selected = searchResults.find(
@@ -73,6 +68,11 @@ const PokemonSearch: React.FC = () => {
     const totalCount = count - 12;
     const totalPages = Math.ceil(totalCount / itemsPerPage);
     return { totalCount, totalPages };
+  };
+
+  const handleSearchResultClose = () => {
+    setSelectedId(null);
+    navigate(`${location.pathname}?page=${currentPage}`);
   };
 
   const fetchPokemonDetails = useCallback(async (pokemonUrl: string) => {
@@ -201,8 +201,11 @@ const PokemonSearch: React.FC = () => {
         const response = await fetch('https://pokeapi.co/api/v2/pokemon');
         if (response.ok) {
           const data = await response.json();
-          const totalCount = data.count - 12;
-          setTotalPages(Math.ceil(totalCount / itemsPerPage));
+          const { totalPages } = calculateTotalCountAndPages(
+            data.count,
+            itemsPerPage
+          );
+          setTotalPages(totalPages);
         }
       } catch (error) {
         console.error('Error fetching total count:', error);

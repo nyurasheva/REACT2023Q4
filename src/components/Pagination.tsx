@@ -12,20 +12,28 @@ const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   onPageChange,
 }) => {
+  const paginationComponent = (
+    <ReactPaginate
+      initialPage={currentPage - 1}
+      pageCount={totalPages}
+      pageRangeDisplayed={5}
+      marginPagesDisplayed={2}
+      onPageChange={onPageChange}
+      containerClassName="pagination"
+      previousLabel="Назад"
+      nextLabel="Вперед"
+      activeClassName="active"
+      disabledClassName="disabled"
+    />
+  );
+
   return (
     <div className="pagination-container">
-      <ReactPaginate
-        pageCount={totalPages}
-        pageRangeDisplayed={5}
-        marginPagesDisplayed={2}
-        onPageChange={onPageChange}
-        containerClassName="pagination"
-        previousLabel="Назад"
-        nextLabel="Вперед"
-        activeClassName="active"
-        disabledClassName="disabled"
-        initialPage={currentPage - 1}
-      />
+      {currentPage === 1 ? (
+        paginationComponent
+      ) : (
+        <div>{paginationComponent}</div>
+      )}
     </div>
   );
 };
