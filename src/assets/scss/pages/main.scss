@@ -7,13 +7,22 @@
 
 .right-panel {
   width: 50%;
+  background-color: #f0f0f0;
 }
 
-// .bottom-section {
-//   display: flex;
-//   flex-grow: 1;
-// }
+.details-section {
+  display: flex;
+  padding: 25px;
+  max-width: 320px;
+  flex-direction: column;
+  position: relative;
+  margin: 0;
+  box-shadow:
+    inset 0 0 0 1px rgba(111, 111, 111, 0.15),
+    0 0 0 1px #fff,
+    0 0 10px transparent;
 
-// .right-panel {
-//   width: 50%;
-// }
+  h2 {
+    text-transform: uppercase;
+  }
+}

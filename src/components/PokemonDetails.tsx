@@ -14,10 +14,10 @@ interface Ability {
   };
 }
 
-const PokemonDetails: React.FC<{ id: string | null; onClose: () => void }> = ({
-  id,
-  onClose,
-}) => {
+const PokemonDetails: React.FC<{
+  id: string | null;
+  onClosePokemonDetails: () => void;
+}> = ({ id, onClosePokemonDetails }) => {
   const [pokemonDetails, setPokemonDetails] = useState<PokemonDetails | null>(
     null
   );
@@ -57,12 +57,14 @@ const PokemonDetails: React.FC<{ id: string | null; onClose: () => void }> = ({
 
   return (
     <div className="details-section">
-      <button onClick={onClose}>Закрыть</button>
       <h2>{pokemonDetails.name}</h2>
       <img src={pokemonDetails.imageUrl} alt={pokemonDetails.name} />
       <p>Способности: {pokemonDetails.abilities.join(', ')}</p>
       <p>Масса: {pokemonDetails.weight}</p>
       <p>Высота: {pokemonDetails.height}</p>
+      <button className="button-second" onClick={onClosePokemonDetails}>
+        Закрыть
+      </button>
     </div>
   );
 };
