@@ -19,7 +19,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
     <div className="search-results">
       <h2>Результаты поиска</h2>
       <div className="pokemon">
-        {isLoading && <div>Loading...</div>}
+        {isLoading && <div className="loading">Loading...</div>}
         {Boolean(results.length) &&
           !isLoading &&
           results.map((result, index) => (
