@@ -35,7 +35,7 @@ const PokemonSearch: React.FC = () => {
   const [images, setImages] = useState<{ [key: string]: string | null }>({});
   const [currentPage, setCurrentPage] = useState<number>(getPageFromUrl());
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
-  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(0);
   const location = useLocation();
   const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -266,15 +266,19 @@ const PokemonSearch: React.FC = () => {
             selectedId={selectedId}
             onClosePokemonDetails={closeDetails}
           />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={isSearching ? searchResults.length : totalPages}
-            onPageChange={(e) => {
-              const page = e.selected + 1;
-              setCurrentPage(page);
-              handleSearchResultClose();
-            }}
-          />
+          {totalPages > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={isSearching ? searchResults.length : totalPages}
+              onPageChange={(e) => {
+                const page = e.selected + 1;
+                setTimeout(() => {
+                  setCurrentPage(page);
+                  handleSearchResultClose();
+                });
+              }}
+            />
+          )}
         </div>
       </div>
       {selectedId && isDetailsOpen && (
