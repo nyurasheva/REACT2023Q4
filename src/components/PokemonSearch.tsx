@@ -43,6 +43,7 @@ const PokemonSearch: React.FC = () => {
 
   const handleSearchResultClose = () => {
     setSelectedId(null);
+    navigate(`${location.pathname}?page=${currentPage}`);
   };
 
   const handleItemClick = (pokemonName: string) => {
@@ -50,12 +51,14 @@ const PokemonSearch: React.FC = () => {
       (pokemon) => pokemon.name === pokemonName
     );
     setSelectedId(selected ? pokemonName : null);
-    setIsDetailsOpen(true); // Открываем PokemonDetails при клике
+    setIsDetailsOpen(true);
+    navigate(`${location.pathname}?page=${currentPage}&details=${pokemonName}`);
   };
 
   const closeDetails = () => {
     setSelectedId(null);
-    setIsDetailsOpen(false); // Закрываем PokemonDetails
+    setIsDetailsOpen(false);
+    navigate(`${location.pathname}?page=${currentPage}`);
   };
 
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
@@ -214,7 +217,6 @@ const PokemonSearch: React.FC = () => {
     doSearch(searchTerm);
     navigate('/search');
     setSelectedId(null);
-    // setIsDetailPanelOpen(false); // Убираем, так как PokemonDetails будет включаться в SearchResult
   };
 
   const updatePokemonDetails = (pokemonDetails: Pokemon[]) => {

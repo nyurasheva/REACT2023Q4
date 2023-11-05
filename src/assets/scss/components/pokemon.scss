@@ -16,6 +16,10 @@
       inset 0 0 0 1px rgba(111, 111, 111, 0.15),
       0 0 0 1px #fff,
       0 0 10px transparent;
+
+    &:hover {
+      cursor: pointer;
+    }
   }
 
   &__title {
