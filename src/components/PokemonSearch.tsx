@@ -4,6 +4,7 @@ import SearchResult from './SearchResult';
 import SearchInput from './SearchInput';
 import Pagination from './Pagination';
 import PageInput from './PageInput';
+import PokemonDetails from './PokemonDetails';
 
 export interface Pokemon {
   name: string;
@@ -35,8 +36,11 @@ const PokemonSearch: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(getPageFromUrl());
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
   const [totalPages, setTotalPages] = useState<number>(0);
+  const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null);
+  const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [selectedId, setSelectedId] = useState<string | null>();
 
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
     const newPage = 1;
@@ -193,6 +197,7 @@ const PokemonSearch: React.FC = () => {
   const handleSearch = async (searchTerm: string) => {
     doSearch(searchTerm);
     navigate('/search');
+    setSelectedId(null);
   };
 
   const updatePokemonDetails = (pokemonDetails: Pokemon[]) => {
@@ -218,6 +223,10 @@ const PokemonSearch: React.FC = () => {
     navigate(`/search?page=${currentPage}`);
   }, [currentPage, navigate]);
 
+  const handleDetailPanelClose = () => {
+    setIsDetailPanelOpen(false);
+  };
+
   return (
     <main>
       <div className="content container">
@@ -230,11 +239,20 @@ const PokemonSearch: React.FC = () => {
         </div>
 
         <div className="bottom-section">
+          <div className="right-panel"></div>
           <SearchResult
             isLoading={isLoading}
             results={searchResults}
             abilityDescriptions={abilityDescriptions}
             images={images}
+            onItemClick={(pokemonName) => {
+              const selected = searchResults.find(
+                (pokemon) => pokemon.name === pokemonName
+              );
+              setSelectedPokemon(selected || null);
+              setSelectedId(selected ? pokemonName : null);
+              setIsDetailPanelOpen(true);
+            }}
           />
           <Pagination
             currentPage={currentPage}
@@ -242,10 +260,19 @@ const PokemonSearch: React.FC = () => {
             onPageChange={(e) => {
               const page = e.selected + 1;
               setCurrentPage(page);
+              setIsDetailPanelOpen(false);
             }}
           />
         </div>
       </div>
+      {selectedPokemon && isDetailPanelOpen && (
+        <div className="right-panel">
+          <PokemonDetails
+            id={selectedId ?? null}
+            onClose={handleDetailPanelClose}
+          />
+        </div>
+      )}
     </main>
   );
 };

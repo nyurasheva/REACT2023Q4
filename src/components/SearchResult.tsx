@@ -3,10 +3,11 @@ import { Pokemon } from './PokemonSearch';
 import logo from '../assets/img/logo.png';
 
 interface SearchResultProps {
-  results: Pokemon[];
   isLoading: boolean;
+  results: Pokemon[];
   abilityDescriptions: { [key: string]: string | null };
   images: { [key: string]: string | null };
+  onItemClick: (pokemonName: string) => void;
 }
 
 const SearchResult: React.FC<SearchResultProps> = ({
@@ -14,6 +15,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
   isLoading,
   abilityDescriptions,
   images,
+  onItemClick,
 }) => {
   return (
     <div className="search-results">
@@ -23,7 +25,13 @@ const SearchResult: React.FC<SearchResultProps> = ({
         {Boolean(results.length) &&
           !isLoading &&
           results.map((result, index) => (
-            <div key={index} className="result-item pokemon__wrapper">
+            <div
+              key={index}
+              className="result-item pokemon__wrapper"
+              onClick={() => {
+                onItemClick(result.name);
+              }}
+            >
               {images[result.name] && (
                 <div className="pokemon__image">
                   {images[result.name] !== null ? (
