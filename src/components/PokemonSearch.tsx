@@ -1,65 +1,59 @@
-import React, { useCallback, useEffect, useState } from 'react';
+// PokemonSearch.tsx
+
+import React, { useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Pokemon, usePokemonContext } from '../context/PokemonContext';
 import SearchResult from './SearchResult';
 import SearchInput from './SearchInput';
 import Pagination from './Pagination';
 import PageInput from './PageInput';
 import PokemonDetails from './PokemonDetails';
 
-export interface Pokemon {
-  name: string;
-  url: string;
-  image?: string;
-  abilities: string[];
-}
-
-interface Ability {
-  ability: {
-    name: string;
-  };
-}
-
-const getPageFromUrl = () => {
-  const pageParam = new URLSearchParams(location.search).get('page');
-  const page = pageParam ? parseInt(pageParam, 10) : 1;
-  return page;
-};
-
 const PokemonSearch: React.FC = () => {
-  const [searchResults, setSearchResults] = useState<Pokemon[]>([]);
-  const [isLoading, setLoading] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-  const [abilityDescriptions, setAbilityDescriptions] = useState<{
-    [key: string]: string | null;
-  }>({});
-  const [images, setImages] = useState<{ [key: string]: string | null }>({});
-  const [currentPage, setCurrentPage] = useState<number>(getPageFromUrl());
-  const [itemsPerPage, setItemsPerPage] = useState<number>(20);
-  const [totalPages, setTotalPages] = useState<number>(0);
+  const { state, dispatch } = usePokemonContext();
   const location = useLocation();
   const navigate = useNavigate();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+  const updatePokemonDetails = useCallback(
+    (pokemonDetails: Pokemon[]) => {
+      const updatedAbilityDescriptions: { [key: string]: string | null } = {};
+      const updatedImages: { [key: string]: string | null } = {};
+
+      for (const pokemonData of pokemonDetails) {
+        updatedAbilityDescriptions[pokemonData.name] =
+          pokemonData.abilities.join(', ');
+        updatedImages[pokemonData.name] = pokemonData.image || null;
+      }
+
+      dispatch({
+        type: 'setAbilityDescriptions',
+        payload: updatedAbilityDescriptions,
+      });
+      dispatch({ type: 'setImages', payload: updatedImages });
+      localStorage.setItem(
+        'abilityDescriptions',
+        JSON.stringify(updatedAbilityDescriptions)
+      );
+      localStorage.setItem('pokemonImages', JSON.stringify(updatedImages));
+    },
+    [dispatch]
+  );
 
   const handleItemClick = (pokemonName: string) => {
-    const selected = searchResults.find(
+    const selected = state.searchResults.find(
       (pokemon) => pokemon.name === pokemonName
     );
-    setSelectedId(selected ? pokemonName : null);
-    setIsDetailsOpen(true);
-    navigate(`${location.pathname}?page=${currentPage}&details=${pokemonName}`);
-  };
-
-  const closeDetails = () => {
-    setSelectedId(null);
-    setIsDetailsOpen(false);
-    navigate(`${location.pathname}?page=${currentPage}`);
+    dispatch({ type: 'setSelectedId', payload: selected ? pokemonName : null });
+    dispatch({ type: 'setIsDetailsOpen', payload: true });
+    navigate(
+      `${location.pathname}?page=${state.currentPage}&details=${pokemonName}`
+    );
   };
 
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
     const newPage = 1;
-    setItemsPerPage(newItemsPerPage);
-    setCurrentPage(newPage);
+    dispatch({ type: 'setItemsPerPage', payload: newItemsPerPage });
+    dispatch({ type: 'setCurrentPage', payload: newPage });
     navigate(`/search?page=${newPage}`);
     fetchPokemons(newPage);
   };
@@ -71,17 +65,16 @@ const PokemonSearch: React.FC = () => {
   };
 
   const handleSearchResultClose = () => {
-    setSelectedId(null);
-    navigate(`${location.pathname}?page=${currentPage}`);
+    dispatch({ type: 'setSelectedId', payload: null });
+    navigate(`${location.pathname}?page=${state.currentPage}`);
   };
 
   const fetchPokemonDetails = useCallback(async (pokemonUrl: string) => {
     try {
       const response = await fetch(pokemonUrl);
       const data = await response.json();
-      const abilities: Ability[] = data.abilities;
-      const abilityNames: string[] = abilities.map(
-        (ability: Ability) => ability.ability.name
+      const abilities = data.abilities.map(
+        (ability: { ability: { name: string } }) => ability.ability.name
       );
       const imageUrl = data.sprites.other['official-artwork'].front_default;
 
@@ -99,48 +92,54 @@ const PokemonSearch: React.FC = () => {
         name: data.name,
         url: data.url,
         image: image,
-        abilities: abilityNames,
-      } as Pokemon;
+        abilities: abilities,
+      };
     } catch (error) {
       console.error('Error fetching abilities: ', error);
+      return {
+        name: '',
+        url: '',
+        image: '',
+        abilities: [],
+      };
     }
   }, []);
 
   const searchPokemon = useCallback(
     async (searchTerm: string) => {
-      setIsSearching(true);
-      setLoading(true);
+      dispatch({ type: 'setIsSearching', payload: true });
+      dispatch({ type: 'setLoading', payload: true });
 
       try {
         const apiUrl = `https://pokeapi.co/api/v2/pokemon/${searchTerm.toLowerCase()}`;
         const pokemon = await fetchPokemonDetails(apiUrl);
         const results = [pokemon] as Pokemon[];
-        setSearchResults(results);
+        dispatch({ type: 'setSearchResults', payload: results });
         updatePokemonDetails(results);
       } catch (error) {
-        setSearchResults([]);
+        dispatch({ type: 'setSearchResults', payload: [] });
       } finally {
-        setLoading(false);
+        dispatch({ type: 'setLoading', payload: false });
       }
     },
-    [fetchPokemonDetails]
+    [dispatch, fetchPokemonDetails, updatePokemonDetails]
   );
 
   const fetchPokemons = useCallback(
     async (page: number = 1) => {
-      const offset = (page - 1) * itemsPerPage;
+      const offset = (page - 1) * state.itemsPerPage;
 
-      setLoading(true);
+      dispatch({ type: 'setLoading', payload: true });
 
       try {
         const response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${itemsPerPage}`
+          `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${state.itemsPerPage}`
         );
         const data = await response.json();
 
         const { totalPages } = calculateTotalCountAndPages(
           data.count,
-          itemsPerPage
+          state.itemsPerPage
         );
 
         const results: Pokemon[] = data.results;
@@ -150,22 +149,19 @@ const PokemonSearch: React.FC = () => {
         );
 
         const pokemonDetails = await Promise.all(fetchPromises);
-        // Фильтруем и удаляем все значения undefined из массива
-        const validPokemonDetails = pokemonDetails.filter(
-          (data) => !!data
-        ) as Pokemon[];
+        const validPokemonDetails = pokemonDetails.filter((data) => !!data);
 
-        setSearchResults(validPokemonDetails);
+        dispatch({ type: 'setSearchResults', payload: validPokemonDetails });
         updatePokemonDetails(validPokemonDetails);
-        setTotalPages(totalPages);
+        dispatch({ type: 'setTotalPages', payload: totalPages });
       } catch (error) {
         console.error('Error fetching data: ', error);
         return [];
       } finally {
-        setLoading(false);
+        dispatch({ type: 'setLoading', payload: false });
       }
     },
-    [fetchPokemonDetails, itemsPerPage]
+    [dispatch, fetchPokemonDetails, state.itemsPerPage, updatePokemonDetails]
   );
 
   const doSearch = useCallback(
@@ -176,7 +172,7 @@ const PokemonSearch: React.FC = () => {
         fetchPokemons(page);
       }
     },
-    [fetchPokemons, searchPokemon]
+    [searchPokemon, fetchPokemons]
   );
 
   useEffect(() => {
@@ -185,17 +181,21 @@ const PokemonSearch: React.FC = () => {
         'abilityDescriptions'
       );
       if (savedAbilityDescriptions) {
-        setAbilityDescriptions(JSON.parse(savedAbilityDescriptions));
+        dispatch({
+          type: 'setAbilityDescriptions',
+          payload: JSON.parse(savedAbilityDescriptions),
+        });
       }
 
       const savedImages = localStorage.getItem('pokemonImages');
       if (savedImages) {
-        setImages(JSON.parse(savedImages));
+        dispatch({ type: 'setImages', payload: JSON.parse(savedImages) });
       }
 
       const savedSearchTerm = localStorage.getItem('searchTerm');
-      doSearch(savedSearchTerm || '', currentPage);
+      doSearch(savedSearchTerm || '', state.currentPage);
     };
+
     const fetchTotalCount = async () => {
       try {
         const response = await fetch('https://pokeapi.co/api/v2/pokemon');
@@ -203,9 +203,9 @@ const PokemonSearch: React.FC = () => {
           const data = await response.json();
           const { totalPages } = calculateTotalCountAndPages(
             data.count,
-            itemsPerPage
+            state.itemsPerPage
           );
-          setTotalPages(totalPages);
+          dispatch({ type: 'setTotalPages', payload: totalPages });
         }
       } catch (error) {
         console.error('Error fetching total count:', error);
@@ -214,43 +214,24 @@ const PokemonSearch: React.FC = () => {
 
     fetchTotalCount();
     initPokemons();
-  }, [doSearch, location, currentPage, itemsPerPage]);
+  }, [dispatch, doSearch, location, state.currentPage, state.itemsPerPage]);
 
   const handleSearch = async (searchTerm: string) => {
     doSearch(searchTerm);
     navigate('/search');
-    setSelectedId(null);
-  };
-
-  const updatePokemonDetails = (pokemonDetails: Pokemon[]) => {
-    const updatedAbilityDescriptions: { [key: string]: string | null } = {};
-    const updatedImages: { [key: string]: string | null } = {};
-
-    for (const pokemonData of pokemonDetails) {
-      updatedAbilityDescriptions[pokemonData.name] =
-        pokemonData.abilities.join(', ');
-      updatedImages[pokemonData.name] = pokemonData.image || null;
-    }
-
-    setAbilityDescriptions(updatedAbilityDescriptions);
-    setImages(updatedImages);
-    localStorage.setItem(
-      'abilityDescriptions',
-      JSON.stringify(updatedAbilityDescriptions)
-    );
-    localStorage.setItem('pokemonImages', JSON.stringify(updatedImages));
+    dispatch({ type: 'setSelectedId', payload: null });
   };
 
   useEffect(() => {
-    navigate(`/search?page=${currentPage}`);
-  }, [currentPage, navigate]);
+    navigate(`/search?page=${state.currentPage}`);
+  }, [state.currentPage, navigate]);
 
   return (
     <main>
       <div className="content container">
         <div className="top-section">
           <PageInput
-            itemsPerPage={itemsPerPage}
+            itemsPerPage={state.itemsPerPage}
             onItemsPerPageChange={handleItemsPerPageChange}
           />
           <SearchInput onSearch={handleSearch} />
@@ -258,22 +239,26 @@ const PokemonSearch: React.FC = () => {
 
         <div className="bottom-section">
           <SearchResult
-            isLoading={isLoading}
-            results={searchResults}
-            abilityDescriptions={abilityDescriptions}
-            images={images}
+            isLoading={state.isLoading}
+            results={state.searchResults}
+            abilityDescriptions={state.abilityDescriptions}
+            images={state.images}
             onItemClick={handleItemClick}
-            selectedId={selectedId}
-            onClosePokemonDetails={closeDetails}
+            selectedId={state.selectedId}
+            onClosePokemonDetails={handleSearchResultClose}
           />
-          {totalPages > 0 && (
+          {state.totalPages > 0 && (
             <Pagination
-              currentPage={currentPage}
-              totalPages={isSearching ? searchResults.length : totalPages}
+              currentPage={state.currentPage}
+              totalPages={
+                state.isSearching
+                  ? state.searchResults.length
+                  : state.totalPages
+              }
               onPageChange={(e) => {
                 const page = e.selected + 1;
                 setTimeout(() => {
-                  setCurrentPage(page);
+                  dispatch({ type: 'setCurrentPage', payload: page });
                   handleSearchResultClose();
                 });
               }}
@@ -281,11 +266,11 @@ const PokemonSearch: React.FC = () => {
           )}
         </div>
       </div>
-      {selectedId && isDetailsOpen && (
+      {state.selectedId && state.isDetailsOpen && (
         <div className="right-panel">
           <PokemonDetails
-            id={selectedId}
-            onClosePokemonDetails={closeDetails}
+            id={state.selectedId}
+            onClosePokemonDetails={handleSearchResultClose}
           />
         </div>
       )}

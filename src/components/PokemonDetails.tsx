@@ -1,12 +1,7 @@
-import React, { useEffect, useState } from 'react';
+// PokemonDetails.tsx
 
-interface PokemonDetails {
-  name: string;
-  imageUrl: string;
-  abilities: string[];
-  weight: string;
-  height: string;
-}
+import React, { useEffect, useState } from 'react';
+import { usePokemonContext } from '../context/PokemonContext';
 
 interface Ability {
   ability: {
@@ -14,10 +9,20 @@ interface Ability {
   };
 }
 
+interface PokemonDetails {
+  name: string;
+  imageUrl: string;
+  abilities: string[];
+  weight: number;
+  height: number;
+}
+
 const PokemonDetails: React.FC<{
   id: string | null;
   onClosePokemonDetails: () => void;
 }> = ({ id, onClosePokemonDetails }) => {
+  const { state } = usePokemonContext();
+  const { abilityDescriptions } = state;
   const [pokemonDetails, setPokemonDetails] = useState<PokemonDetails | null>(
     null
   );
@@ -63,7 +68,11 @@ const PokemonDetails: React.FC<{
         <>
           <h2>{pokemonDetails.name}</h2>
           <img src={pokemonDetails.imageUrl} alt={pokemonDetails.name} />
-          <p>Способности: {pokemonDetails.abilities.join(', ')}</p>
+          <p>
+            Способности:{' '}
+            {abilityDescriptions[pokemonDetails.name.toLowerCase()] ||
+              'Неизвестно'}
+          </p>
           <p>Масса: {pokemonDetails.weight}</p>
           <p>Высота: {pokemonDetails.height}</p>
           <button className="button-second" onClick={onClosePokemonDetails}>

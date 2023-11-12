@@ -1,6 +1,8 @@
+// SearchResult.tsx
+
 import React from 'react';
-import { Pokemon } from './PokemonSearch';
 import logo from '../assets/img/logo.png';
+import { Pokemon } from '../context/PokemonContext';
 
 interface SearchResultProps {
   isLoading: boolean;
@@ -13,8 +15,8 @@ interface SearchResultProps {
 }
 
 const SearchResult: React.FC<SearchResultProps> = ({
-  results,
   isLoading,
+  results,
   abilityDescriptions,
   images,
   selectedId,
