@@ -35,12 +35,13 @@ const PageInput: React.FC<ItemsPerPageInputProps> = ({
 
   return (
     <div className="page-input">
-      <label>Кол-во покемонов на странице: </label>
+      <label htmlFor="itemsPerPageInput">Кол-во покемонов на странице: </label>
       <div className="changer">
         <button className="increase" onClick={handleIncreaseClick}>
           +
         </button>
         <input
+          id="itemsPerPageInput"
           className="amount"
           type="text"
           value={itemsPerPage}

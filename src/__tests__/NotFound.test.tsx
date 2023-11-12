@@ -11,7 +11,6 @@ describe('NotFound component', () => {
       </Router>
     );
 
-    // Проверяем, что элементы находятся на странице
     expect(screen.getByText('404')).toBeTruthy();
     expect(screen.getByText('Ошибка')).toBeTruthy();
     expect(
