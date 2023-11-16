@@ -1,7 +1,8 @@
 // PokemonDetails.tsx
 
 import React, { useEffect, useState } from 'react';
-import { usePokemonContext } from '../context/PokemonContext';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/rootReducer';
 
 interface Ability {
   ability: {
@@ -21,8 +22,9 @@ const PokemonDetails: React.FC<{
   id: string | null;
   onClosePokemonDetails: () => void;
 }> = ({ id, onClosePokemonDetails }) => {
-  const { state } = usePokemonContext();
-  const { abilityDescriptions } = state;
+  const { abilityDescriptions } = useSelector(
+    (state: RootState) => state.pokemon
+  );
   const [pokemonDetails, setPokemonDetails] = useState<PokemonDetails | null>(
     null
   );

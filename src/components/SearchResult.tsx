@@ -1,49 +1,43 @@
 // SearchResult.tsx
 
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/rootReducer';
 import logo from '../assets/img/logo.png';
-import { Pokemon } from '../context/PokemonContext';
+import { Pokemon } from '../redux/pokemonReducer';
 
 interface SearchResultProps {
-  isLoading: boolean;
-  results: Pokemon[];
-  abilityDescriptions: { [key: string]: string | null };
-  images: { [key: string]: string | null };
   onItemClick: (pokemonName: string) => void;
-  selectedId: string | null;
   onClosePokemonDetails: () => void;
 }
 
 const SearchResult: React.FC<SearchResultProps> = ({
-  isLoading,
-  results,
-  abilityDescriptions,
-  images,
-  selectedId,
   onItemClick,
   onClosePokemonDetails,
 }) => {
-  let name: string | null = null;
+  const { isLoading, searchResults, abilityDescriptions, images, selectedId } =
+    useSelector((state: RootState) => state.pokemon);
 
   const handleItemClick = (pokemonName: string) => {
     onItemClick(pokemonName);
-    name = pokemonName;
   };
 
   const handleContainerClick = () => {
-    if (selectedId !== null && name === null) {
+    if (selectedId !== null) {
       onClosePokemonDetails();
     }
   };
+
+  // console.log(searchResults);
 
   return (
     <div className="search-results" onClick={handleContainerClick}>
       <h2>Результаты поиска</h2>
       <div className="pokemon">
         {isLoading && <div className="loading">Loading...</div>}
-        {Boolean(results.length) &&
+        {Boolean(searchResults.length) &&
           !isLoading &&
-          results.map((result, index) => (
+          searchResults.map((result: Pokemon, index: number) => (
             <div
               key={index}
               className="result-item pokemon__wrapper"
@@ -72,7 +66,9 @@ const SearchResult: React.FC<SearchResultProps> = ({
               )}
             </div>
           ))}
-        {!Boolean(results.length) && !isLoading && <div>Нет результатов</div>}
+        {!Boolean(searchResults.length) && !isLoading && (
+          <div>Нет результатов</div>
+        )}
       </div>
     </div>
   );
