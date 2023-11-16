@@ -1,0 +1,73 @@
+.page-input {
+  @include flex();
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.changer {
+  height: 40px;
+  width: 90px;
+  padding: 0;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #d5d5d5;
+  box-shadow: inset 3px 3px 1px 0 rgba(0, 0, 0, 0.03);
+  border-radius: 25px;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: center;
+  transition: $transition;
+
+  &:hover {
+    border: none;
+    box-shadow: 0 0 0 2px rgba(0, 119, 204, 0.26);
+    transition: $transition;
+  }
+}
+
+.amount {
+  height: 30px;
+  width: 40px;
+  padding: 0;
+  text-align: center;
+  background: #fff;
+  border: none;
+  border-radius: 25px;
+  outline: none !important;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  &:focus,
+  &:hover {
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+.increase,
+.decrease {
+  display: flex;
+  padding: 0;
+  width: 15px;
+  height: 40px;
+  position: relative;
+  border: 1px solid #c8c8c8;
+  line-height: 13px;
+  cursor: pointer;
+  background: #fff;
+  user-select: none;
+  align-items: center;
+  justify-content: center;
+  border-width: 0;
+  font-size: 20px;
+  font-family: monospace;
+  border-radius: 0;
+  background: none;
+  color: #00000080;
+  transition: $transition;
+}
