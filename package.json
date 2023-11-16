@@ -12,11 +12,12 @@
     "preview": "vite preview",
     "precommit": "npm run lint",
     "prepare": "husky install",
-    "test": "jest --bail",
+    "test": "jest",
     "prepush": "npm test",
     "commit": "npm test && git add . && git cz"
   },
   "dependencies": {
+    "msw": "^2.0.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-paginate": "^8.2.0",
@@ -27,7 +28,9 @@
     "@commitlint/config-conventional": "^17.6.7",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.1.0",
+    "@testing-library/user-event": "^14.5.1",
     "@types/jest": "^29.5.8",
+    "@types/node": "^20.9.0",
     "@types/node-fetch": "^2.6.9",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",

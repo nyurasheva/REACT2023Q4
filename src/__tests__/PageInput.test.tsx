@@ -1,32 +1,54 @@
-import { render, screen } from '@testing-library/react';
-import Pagination from '../components/Pagination';
+import { render, fireEvent, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import PageInput from '../components/PageInput';
 
-describe('Pagination Component', () => {
-  it('renders correctly and handles page change', () => {
-    const currentPage = 3;
-    const totalPages = 10;
-    const onPageChange = jest.fn();
+describe('PageInput', () => {
+  it('renders with initial itemsPerPage and updates on change', () => {
+    const initialItemsPerPage = 10;
+    const onItemsPerPageChange = jest.fn();
 
     render(
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={onPageChange}
+      <PageInput
+        itemsPerPage={initialItemsPerPage}
+        onItemsPerPageChange={onItemsPerPageChange}
       />
     );
 
-    const paginationContainer = screen.getByRole('navigation');
-    expect(paginationContainer).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Кол-во покемонов на странице:')
+    ).toBeDefined();
+    expect(
+      screen.getByDisplayValue(initialItemsPerPage.toString())
+    ).toBeDefined();
 
-    const previousPageButton = screen.getByText('Назад');
-    expect(previousPageButton).toBeInTheDocument();
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: '15' } });
 
-    const nextPageButton = screen.getByText('Вперед');
-    expect(nextPageButton).toBeInTheDocument();
+    expect(onItemsPerPageChange).toHaveBeenCalledWith(15);
 
-    const activePage = screen.getByLabelText(
-      `Page ${currentPage} is your current page`
+    fireEvent.blur(input);
+
+    expect(onItemsPerPageChange).toHaveBeenCalledWith(initialItemsPerPage);
+  });
+
+  it('handles decrease and increase button clicks', () => {
+    const initialItemsPerPage = 5;
+    const onItemsPerPageChange = jest.fn();
+
+    render(
+      <PageInput
+        itemsPerPage={initialItemsPerPage}
+        onItemsPerPageChange={onItemsPerPageChange}
+      />
     );
-    expect(activePage).toBeInTheDocument();
+    const decreaseButton = screen.getByRole('button', { name: '−' });
+    fireEvent.click(decreaseButton);
+
+    expect(onItemsPerPageChange).toHaveBeenCalledWith(initialItemsPerPage - 1);
+
+    const increaseButton = screen.getByRole('button', { name: '+' });
+    fireEvent.click(increaseButton);
+
+    expect(onItemsPerPageChange).toHaveBeenCalledWith(initialItemsPerPage + 1);
   });
 });

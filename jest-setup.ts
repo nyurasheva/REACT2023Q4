@@ -9,3 +9,10 @@ global.matchMedia = global.matchMedia || function mockMatchMedia() {
     removeListener() { },
   };
 };
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+afterAll(() => {
+  jest.restoreAllMocks();
+});

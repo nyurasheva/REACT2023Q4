@@ -56,4 +56,21 @@ describe('SearchResult Component', () => {
     fireEvent.click(screen.getByText(mockResults[0].name));
     expect(onItemClick).toHaveBeenCalledWith(mockResults[0].name);
   });
+
+  it('displays a message when no cards are present', () => {
+    render(
+      <SearchResult
+        isLoading={false}
+        results={[]}
+        abilityDescriptions={{}}
+        images={{}}
+        selectedId={null}
+        onItemClick={() => {}}
+        onClosePokemonDetails={() => {}}
+      />
+    );
+
+    const noResultsMessage = screen.getByText('Нет результатов');
+    expect(noResultsMessage).toBeInTheDocument();
+  });
 });

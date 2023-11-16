@@ -15,14 +15,16 @@ const PokemonSearch: React.FC = () => {
   const navigate = useNavigate();
 
   const updatePokemonDetails = useCallback(
-    (pokemonDetails: Pokemon[]) => {
+    (pokemonDetails: (Pokemon | null)[]) => {
       const updatedAbilityDescriptions: { [key: string]: string | null } = {};
       const updatedImages: { [key: string]: string | null } = {};
 
       for (const pokemonData of pokemonDetails) {
-        updatedAbilityDescriptions[pokemonData.name] =
-          pokemonData.abilities.join(', ');
-        updatedImages[pokemonData.name] = pokemonData.image || null;
+        if (pokemonData) {
+          updatedAbilityDescriptions[pokemonData.name] =
+            pokemonData.abilities.join(', ');
+          updatedImages[pokemonData.name] = pokemonData.image || null;
+        }
       }
 
       dispatch({
@@ -52,8 +54,14 @@ const PokemonSearch: React.FC = () => {
 
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
     const newPage = 1;
-    dispatch({ type: 'setItemsPerPage', payload: newItemsPerPage });
-    dispatch({ type: 'setCurrentPage', payload: newPage });
+    dispatch({
+      type: 'setItemsPerPage',
+      payload: newItemsPerPage,
+    });
+    dispatch({
+      type: 'setCurrentPage',
+      payload: newPage,
+    });
     navigate(`/search?page=${newPage}`);
     fetchPokemons(newPage);
   };
@@ -72,36 +80,36 @@ const PokemonSearch: React.FC = () => {
   const fetchPokemonDetails = useCallback(async (pokemonUrl: string) => {
     try {
       const response = await fetch(pokemonUrl);
-      const data = await response.json();
-      const abilities = data.abilities.map(
-        (ability: { ability: { name: string } }) => ability.ability.name
-      );
-      const imageUrl = data.sprites.other['official-artwork'].front_default;
+      if (response.ok) {
+        const data = await response.json();
+        const abilities = data.abilities.map(
+          (ability: { ability: { name: string } }) => ability.ability.name
+        );
+        const imageUrl = data.sprites.other['official-artwork'].front_default;
 
-      const imagePromise = new Promise<string>((resolve) => {
-        const image = new Image();
-        image.src = imageUrl;
-        image.onload = () => {
-          resolve(image.src);
+        const imagePromise = new Promise<string>((resolve) => {
+          const image = new Image();
+          image.src = imageUrl;
+          image.onload = () => {
+            resolve(image.src);
+          };
+        });
+
+        const image = await imagePromise;
+
+        return {
+          name: data.name,
+          url: data.url,
+          image: image,
+          abilities: abilities,
         };
-      });
-
-      const image = await imagePromise;
-
-      return {
-        name: data.name,
-        url: data.url,
-        image: image,
-        abilities: abilities,
-      };
+      } else {
+        console.error('Error fetching abilities. Response not OK:', response);
+        return null;
+      }
     } catch (error) {
-      console.error('Error fetching abilities: ', error);
-      return {
-        name: '',
-        url: '',
-        image: '',
-        abilities: [],
-      };
+      console.error('Error fetching abilities:', error);
+      return null;
     }
   }, []);
 
@@ -113,10 +121,11 @@ const PokemonSearch: React.FC = () => {
       try {
         const apiUrl = `https://pokeapi.co/api/v2/pokemon/${searchTerm.toLowerCase()}`;
         const pokemon = await fetchPokemonDetails(apiUrl);
-        const results = [pokemon] as Pokemon[];
+        const results = [pokemon].filter(Boolean) as Pokemon[];
         dispatch({ type: 'setSearchResults', payload: results });
         updatePokemonDetails(results);
       } catch (error) {
+        console.error('Error searching for Pokemon:', error);
         dispatch({ type: 'setSearchResults', payload: [] });
       } finally {
         dispatch({ type: 'setLoading', payload: false });
@@ -135,28 +144,33 @@ const PokemonSearch: React.FC = () => {
         const response = await fetch(
           `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${state.itemsPerPage}`
         );
-        const data = await response.json();
+        if (response.ok) {
+          const data = await response.json();
 
-        const { totalPages } = calculateTotalCountAndPages(
-          data.count,
-          state.itemsPerPage
-        );
+          const { totalPages } = calculateTotalCountAndPages(
+            data.count || 0,
+            state.itemsPerPage
+          );
 
-        const results: Pokemon[] = data.results;
+          const results: Pokemon[] = data.results || [];
+          const fetchPromises = results.map(async (result) => {
+            const pokemonData = await fetchPokemonDetails(result.url);
+            return pokemonData;
+          });
 
-        const fetchPromises = results.map((result) =>
-          fetchPokemonDetails(result.url)
-        );
+          const pokemonDetails = await Promise.all(fetchPromises);
+          const validPokemonDetails = pokemonDetails.filter(
+            (data) => data !== null
+          ) as Pokemon[];
 
-        const pokemonDetails = await Promise.all(fetchPromises);
-        const validPokemonDetails = pokemonDetails.filter((data) => !!data);
-
-        dispatch({ type: 'setSearchResults', payload: validPokemonDetails });
-        updatePokemonDetails(validPokemonDetails);
-        dispatch({ type: 'setTotalPages', payload: totalPages });
+          dispatch({ type: 'setSearchResults', payload: validPokemonDetails });
+          updatePokemonDetails(validPokemonDetails);
+          dispatch({ type: 'setTotalPages', payload: totalPages });
+        } else {
+          console.error('Error fetching data. Response not OK:', response);
+        }
       } catch (error) {
-        console.error('Error fetching data: ', error);
-        return [];
+        console.error('Error fetching data:', error);
       } finally {
         dispatch({ type: 'setLoading', payload: false });
       }
@@ -177,44 +191,55 @@ const PokemonSearch: React.FC = () => {
 
   useEffect(() => {
     const initPokemons = async () => {
-      const savedAbilityDescriptions = localStorage.getItem(
-        'abilityDescriptions'
-      );
-      if (savedAbilityDescriptions) {
-        dispatch({
-          type: 'setAbilityDescriptions',
-          payload: JSON.parse(savedAbilityDescriptions),
-        });
-      }
-
-      const savedImages = localStorage.getItem('pokemonImages');
-      if (savedImages) {
-        dispatch({ type: 'setImages', payload: JSON.parse(savedImages) });
-      }
-
-      const savedSearchTerm = localStorage.getItem('searchTerm');
-      doSearch(savedSearchTerm || '', state.currentPage);
-    };
-
-    const fetchTotalCount = async () => {
       try {
         const response = await fetch('https://pokeapi.co/api/v2/pokemon');
-        if (response.ok) {
+        try {
           const data = await response.json();
+          if (!data || !data.count) {
+            console.warn(
+              'Предупреждение: общее количество не найдено в ответе.'
+            );
+            return;
+          }
+
           const { totalPages } = calculateTotalCountAndPages(
             data.count,
             state.itemsPerPage
           );
-          dispatch({ type: 'setTotalPages', payload: totalPages });
+
+          dispatch({
+            type: 'setTotalPages',
+            payload: totalPages,
+          });
+
+          // Делаем инициализацию данных только если запрос к серверу выполнен успешно
+          const savedAbilityDescriptions = localStorage.getItem(
+            'abilityDescriptions'
+          );
+          if (savedAbilityDescriptions) {
+            dispatch({
+              type: 'setAbilityDescriptions',
+              payload: JSON.parse(savedAbilityDescriptions),
+            });
+          }
+
+          const savedImages = localStorage.getItem('pokemonImages');
+          if (savedImages) {
+            dispatch({ type: 'setImages', payload: JSON.parse(savedImages) });
+          }
+
+          const savedSearchTerm = localStorage.getItem('searchTerm');
+          doSearch(savedSearchTerm || '', state.currentPage);
+        } catch (jsonError) {
+          console.error('Ошибка при разборе JSON:', jsonError);
         }
       } catch (error) {
-        console.error('Error fetching total count:', error);
+        console.error('Ошибка при получении общего количества:', error);
       }
     };
 
-    fetchTotalCount();
     initPokemons();
-  }, [dispatch, doSearch, location, state.currentPage, state.itemsPerPage]);
+  }, [dispatch, doSearch, state.currentPage, state.itemsPerPage]);
 
   const handleSearch = async (searchTerm: string) => {
     doSearch(searchTerm);
