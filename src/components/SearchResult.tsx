@@ -28,8 +28,6 @@ const SearchResult: React.FC<SearchResultProps> = ({
     }
   };
 
-  // console.log(searchResults);
-
   return (
     <div className="search-results" onClick={handleContainerClick}>
       <h2>Результаты поиска</h2>

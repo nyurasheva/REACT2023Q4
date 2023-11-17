@@ -1,66 +1,41 @@
-// PokemonDetails.tsx
-
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setLoading } from '../redux/pokemonReducer';
 import { RootState } from '../redux/rootReducer';
 
-interface Ability {
-  ability: {
-    name: string;
-  };
-}
-
-interface PokemonDetails {
-  name: string;
-  imageUrl: string;
-  abilities: string[];
-  weight: number;
-  height: number;
-}
-
 const PokemonDetails: React.FC<{
-  id: string | null;
   onClosePokemonDetails: () => void;
-}> = ({ id, onClosePokemonDetails }) => {
-  const { abilityDescriptions } = useSelector(
+}> = ({ onClosePokemonDetails }) => {
+  const dispatch = useDispatch();
+  const { abilityDescriptions, isLoading, selectedId } = useSelector(
     (state: RootState) => state.pokemon
   );
-  const [pokemonDetails, setPokemonDetails] = useState<PokemonDetails | null>(
-    null
-  );
-  const [isLoading, setIsLoading] = useState(false);
+  const [weight, setWeight] = useState<number | null>(null);
+  const [height, setHeight] = useState<number | null>(null);
 
   useEffect(() => {
-    if (id !== null && id !== undefined) {
-      setIsLoading(true);
-      fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
+    if (selectedId) {
+      dispatch(setLoading(true));
+      fetch(`https://pokeapi.co/api/v2/pokemon/${selectedId}`)
         .then((response) => response.json())
         .then((data) => {
-          const name = data.name;
-          const imageUrl = data.sprites.other['official-artwork'].front_default;
-          const abilities = data.abilities.map(
-            (ability: Ability) => ability.ability.name
-          );
-          const weight = data.weight;
-          const height = data.height;
-
-          const details: PokemonDetails = {
-            name,
-            imageUrl,
-            abilities,
-            weight,
-            height,
-          };
-
-          setPokemonDetails(details);
-          setIsLoading(false);
+          const weight = data.weight || null;
+          const height = data.height || null;
+          dispatch(setLoading(false));
+          setWeight(weight);
+          setHeight(height);
         })
         .catch((error) => {
           console.error('Error fetching pokemon details: ', error);
-          setIsLoading(false);
+          dispatch(setLoading(false));
         });
     }
-  }, [id]);
+  }, [abilityDescriptions, dispatch, selectedId]);
+
+  // Получаем детали покемона из состояния
+  const pokemonDetails = useSelector((state: RootState) =>
+    state.pokemon.searchResults.find((pokemon) => pokemon.name === selectedId)
+  );
 
   return (
     <div className="details-section">
@@ -69,14 +44,14 @@ const PokemonDetails: React.FC<{
       ) : pokemonDetails ? (
         <>
           <h2>{pokemonDetails.name}</h2>
-          <img src={pokemonDetails.imageUrl} alt={pokemonDetails.name} />
+          <img src={pokemonDetails.image} alt={pokemonDetails.name} />
           <p>
             Способности:{' '}
             {abilityDescriptions[pokemonDetails.name.toLowerCase()] ||
               'Неизвестно'}
           </p>
-          <p>Масса: {pokemonDetails.weight}</p>
-          <p>Высота: {pokemonDetails.height}</p>
+          <p>Масса: {weight !== null ? weight : 'Неизвестно'}</p>
+          <p>Высота: {height !== null ? height : 'Неизвестно'}</p>
           <button className="button-second" onClick={onClosePokemonDetails}>
             Закрыть
           </button>

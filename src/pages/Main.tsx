@@ -1,7 +1,7 @@
 // Main.tsx
 
 import { Header } from '../components/Header';
-import { PokemonSearch } from '../components/PokemonSearch';
+import PokemonSearch from '../components/PokemonSearch';
 import { Footer } from '../components/Footer';
 
 const Main = () => {

@@ -289,7 +289,7 @@ export const PokemonSearch: React.FC = () => {
       {state.selectedId && state.isDetailsOpen && (
         <div className="right-panel">
           <PokemonDetails
-            id={state.selectedId}
+            // id={state.selectedId}
             onClosePokemonDetails={handleSearchResultClose}
           />
         </div>

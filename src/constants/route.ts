@@ -1,3 +1,5 @@
+// constants/route.js
+
 const MAIN_ROUTE = '/';
 const NOTFOUND_ROUTE = '*';
 

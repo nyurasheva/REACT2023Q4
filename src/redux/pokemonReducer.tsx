@@ -20,6 +20,7 @@ export interface PokemonState {
   totalPages: number;
   selectedId: string | null;
   isDetailsOpen: boolean;
+  searchTermValue: string;
 }
 
 const initialState: PokemonState = {
@@ -30,9 +31,10 @@ const initialState: PokemonState = {
   images: {} as { [key: string]: string | null },
   currentPage: 1,
   itemsPerPage: 20,
-  totalPages: 0,
+  totalPages: 1,
   selectedId: null as string | null,
   isDetailsOpen: false,
+  searchTermValue: '',
 };
 
 const pokemonSlice = createSlice({
@@ -72,6 +74,9 @@ const pokemonSlice = createSlice({
     setItemsPerPage(state, action: PayloadAction<number>) {
       state.itemsPerPage = action.payload;
     },
+    setSearchTermValue(state, action: PayloadAction<string>) {
+      state.searchTermValue = action.payload;
+    },
   },
 });
 
@@ -86,6 +91,7 @@ export const {
   setSelectedId,
   setIsDetailsOpen,
   setItemsPerPage,
+  setSearchTermValue,
 } = pokemonSlice.actions;
 
 export default pokemonSlice.reducer;
