@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -26,6 +26,13 @@ export const PokemonSearch: React.FC = () => {
   const state = useSelector((state: RootState) => state.pokemon);
   const location = useLocation();
   const navigate = useNavigate();
+  const prevItemsPerPageRef = useRef(state.itemsPerPage);
+
+  const calculateTotalCountAndPages = (count: number, itemsPerPage: number) => {
+    const totalCount = count - 12;
+    const totalPages = Math.ceil(totalCount / itemsPerPage);
+    return { totalCount, totalPages };
+  };
 
   const updatePokemonDetails = useCallback(
     (pokemonDetails: (Pokemon | null)[]) => {
@@ -50,36 +57,6 @@ export const PokemonSearch: React.FC = () => {
     },
     [dispatch]
   );
-
-  const handleItemClick = (pokemonName: string) => {
-    const selected = state.searchResults.find(
-      (pokemon) => pokemon.name === pokemonName
-    );
-    dispatch(setSelectedId(selected ? pokemonName : null));
-    dispatch(setIsDetailsOpen(true));
-    navigate(
-      `${location.pathname}?page=${state.currentPage}&details=${pokemonName}`
-    );
-  };
-
-  const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    const newPage = 1;
-    dispatch(setItemsPerPage(newItemsPerPage));
-    dispatch(setCurrentPage(newPage));
-    navigate(`/search?page=${newPage}`);
-    fetchPokemons(newPage);
-  };
-
-  const calculateTotalCountAndPages = (count: number, itemsPerPage: number) => {
-    const totalCount = count - 12;
-    const totalPages = Math.ceil(totalCount / itemsPerPage);
-    return { totalCount, totalPages };
-  };
-
-  const handleSearchResultClose = () => {
-    dispatch(setSelectedId(null));
-    navigate(`${location.pathname}?page=${state.currentPage}`);
-  };
 
   const fetchPokemonDetails = useCallback(async (pokemonUrl: string) => {
     try {
@@ -116,27 +93,6 @@ export const PokemonSearch: React.FC = () => {
       return null;
     }
   }, []);
-
-  const searchPokemon = useCallback(
-    async (searchTerm: string) => {
-      dispatch(setIsSearching(true));
-      dispatch(setLoading(true));
-
-      try {
-        const apiUrl = `https://pokeapi.co/api/v2/pokemon/${searchTerm.toLowerCase()}`;
-        const pokemon = await fetchPokemonDetails(apiUrl);
-        const results = [pokemon].filter(Boolean) as Pokemon[];
-        dispatch(setSearchResults(results));
-        updatePokemonDetails(results);
-      } catch (error) {
-        console.error('Error searching for Pokemon:', error);
-        dispatch(setSearchResults([]));
-      } finally {
-        dispatch(setLoading(false));
-      }
-    },
-    [dispatch, fetchPokemonDetails, updatePokemonDetails]
-  );
 
   const fetchPokemons = useCallback(
     async (page: number = 1) => {
@@ -182,6 +138,27 @@ export const PokemonSearch: React.FC = () => {
     [dispatch, fetchPokemonDetails, state.itemsPerPage, updatePokemonDetails]
   );
 
+  const searchPokemon = useCallback(
+    async (searchTerm: string) => {
+      dispatch(setIsSearching(true));
+      dispatch(setLoading(true));
+
+      try {
+        const apiUrl = `https://pokeapi.co/api/v2/pokemon/${searchTerm.toLowerCase()}`;
+        const pokemon = await fetchPokemonDetails(apiUrl);
+        const results = [pokemon].filter(Boolean) as Pokemon[];
+        dispatch(setSearchResults(results));
+        updatePokemonDetails(results);
+      } catch (error) {
+        console.error('Error searching for Pokemon:', error);
+        dispatch(setSearchResults([]));
+      } finally {
+        dispatch(setLoading(false));
+      }
+    },
+    [dispatch, fetchPokemonDetails, updatePokemonDetails]
+  );
+
   const doSearch = useCallback(
     (searchTerm: string, page?: number) => {
       if (searchTerm) {
@@ -192,6 +169,33 @@ export const PokemonSearch: React.FC = () => {
     },
     [searchPokemon, fetchPokemons]
   );
+
+  const handleItemClick = (pokemonName: string) => {
+    const selected = state.searchResults.find(
+      (pokemon) => pokemon.name === pokemonName
+    );
+    dispatch(setSelectedId(selected ? pokemonName : null));
+    dispatch(setIsDetailsOpen(true));
+    navigate(
+      `${location.pathname}?page=${state.currentPage}&details=${pokemonName}`
+    );
+  };
+
+  const handleItemsPerPageChange = useCallback(
+    (newItemsPerPage: number) => {
+      const newPage = 1;
+      dispatch(setItemsPerPage(newItemsPerPage));
+      dispatch(setCurrentPage(newPage));
+      navigate(`/search?page=${newPage}`);
+      fetchPokemons(newPage);
+    },
+    [dispatch, fetchPokemons, navigate]
+  );
+
+  const handleSearchResultClose = () => {
+    dispatch(setSelectedId(null));
+    navigate(`${location.pathname}?page=${state.currentPage}`);
+  };
 
   const handleSearch = async (searchTerm: string) => {
     doSearch(searchTerm);
@@ -251,14 +255,18 @@ export const PokemonSearch: React.FC = () => {
     navigate(`/search?page=${state.currentPage}`);
   }, [state.currentPage, navigate]);
 
+  useEffect(() => {
+    if (state.itemsPerPage !== prevItemsPerPageRef.current) {
+      handleItemsPerPageChange(state.itemsPerPage);
+      prevItemsPerPageRef.current = state.itemsPerPage;
+    }
+  }, [handleItemsPerPageChange, state.itemsPerPage]);
+
   return (
     <main>
       <div className="content container">
         <div className="top-section">
-          <PageInput
-            itemsPerPage={state.itemsPerPage}
-            onItemsPerPageChange={handleItemsPerPageChange}
-          />
+          <PageInput />
           <SearchInput onSearch={handleSearch} />
         </div>
 
@@ -288,10 +296,7 @@ export const PokemonSearch: React.FC = () => {
       </div>
       {state.selectedId && state.isDetailsOpen && (
         <div className="right-panel">
-          <PokemonDetails
-            // id={state.selectedId}
-            onClosePokemonDetails={handleSearchResultClose}
-          />
+          <PokemonDetails onClosePokemonDetails={handleSearchResultClose} />
         </div>
       )}
     </main>

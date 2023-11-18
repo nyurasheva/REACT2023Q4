@@ -1,36 +1,33 @@
 import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setItemsPerPage } from '../redux/pokemonReducer';
+import { RootState } from '../redux/rootReducer';
 
-interface ItemsPerPageInputProps {
-  itemsPerPage: number;
-  onItemsPerPageChange: (newItemsPerPage: number) => void;
-}
+const PageInput: React.FC = () => {
+  const dispatch = useDispatch();
+  const itemsPerPage = useSelector(
+    (state: RootState) => state.pokemon.itemsPerPage
+  );
+  console.log(itemsPerPage);
 
-const PageInput: React.FC<ItemsPerPageInputProps> = ({
-  itemsPerPage,
-  onItemsPerPageChange,
-}) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     if (/^\d+$/.test(newValue)) {
       const newItemsPerPage = parseInt(newValue, 10);
-      onItemsPerPageChange(newItemsPerPage);
+      dispatch(setItemsPerPage(newItemsPerPage));
     }
-  };
-
-  const handleInputBlur = () => {
-    onItemsPerPageChange(itemsPerPage);
   };
 
   const handleDecreaseClick = () => {
     const newItemsPerPage = itemsPerPage - 1;
     if (newItemsPerPage >= 1) {
-      onItemsPerPageChange(newItemsPerPage);
+      dispatch(setItemsPerPage(newItemsPerPage));
     }
   };
 
   const handleIncreaseClick = () => {
     const newItemsPerPage = itemsPerPage + 1;
-    onItemsPerPageChange(newItemsPerPage);
+    dispatch(setItemsPerPage(newItemsPerPage));
   };
 
   return (
@@ -46,7 +43,6 @@ const PageInput: React.FC<ItemsPerPageInputProps> = ({
           type="text"
           value={itemsPerPage}
           onChange={handleInputChange}
-          onBlur={handleInputBlur}
         />
         <button className="decrease" onClick={handleDecreaseClick}>
           −
