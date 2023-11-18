@@ -1,3 +1,5 @@
+// PokemonSearch.tsx
+
 import React, { useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -181,6 +183,15 @@ export const PokemonSearch: React.FC = () => {
     );
   };
 
+  const handleSearch = useCallback(
+    async (searchTermValue: string) => {
+      doSearch(searchTermValue);
+      navigate('/search');
+      dispatch(setSelectedId(null));
+    },
+    [dispatch, doSearch, navigate]
+  );
+
   const handleItemsPerPageChange = useCallback(
     (newItemsPerPage: number) => {
       const newPage = 1;
@@ -195,12 +206,6 @@ export const PokemonSearch: React.FC = () => {
   const handleSearchResultClose = () => {
     dispatch(setSelectedId(null));
     navigate(`${location.pathname}?page=${state.currentPage}`);
-  };
-
-  const handleSearch = async (searchTerm: string) => {
-    doSearch(searchTerm);
-    navigate('/search');
-    dispatch(setSelectedId(null));
   };
 
   useEffect(() => {
@@ -256,6 +261,12 @@ export const PokemonSearch: React.FC = () => {
   }, [state.currentPage, navigate]);
 
   useEffect(() => {
+    if (state.searchTermValue) {
+      handleSearch(state.searchTermValue);
+    }
+  }, [dispatch, handleSearch, state.searchTermValue]);
+
+  useEffect(() => {
     if (state.itemsPerPage !== prevItemsPerPageRef.current) {
       handleItemsPerPageChange(state.itemsPerPage);
       prevItemsPerPageRef.current = state.itemsPerPage;
@@ -267,7 +278,7 @@ export const PokemonSearch: React.FC = () => {
       <div className="content container">
         <div className="top-section">
           <PageInput />
-          <SearchInput onSearch={handleSearch} />
+          <SearchInput />
         </div>
 
         <div className="bottom-section">

@@ -1,25 +1,17 @@
 // SearchInput.tsx
 
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { setSearchTermValue } from '../redux/pokemonReducer';
 
-interface SearchProps {
-  onSearch: (searchTerm: string) => void;
-}
-
-const SearchInput: React.FC<SearchProps> = ({ onSearch }) => {
+const SearchInput: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-
-  useEffect(() => {
-    const savedSearchTerm = localStorage.getItem('searchTerm');
-    if (savedSearchTerm) {
-      setSearchTerm(savedSearchTerm);
-    }
-  }, []);
+  const dispatch = useDispatch();
 
   const handleSearch = () => {
     const trimmedSearchTerm = searchTerm.trim();
     localStorage.setItem('searchTerm', trimmedSearchTerm);
-    onSearch(trimmedSearchTerm);
+    dispatch(setSearchTermValue(trimmedSearchTerm));
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,6 +23,13 @@ const SearchInput: React.FC<SearchProps> = ({ onSearch }) => {
       handleSearch();
     }
   };
+
+  useEffect(() => {
+    const savedSearchTerm = localStorage.getItem('searchTerm');
+    if (savedSearchTerm) {
+      setSearchTerm(savedSearchTerm);
+    }
+  }, []);
 
   return (
     <div className="row">

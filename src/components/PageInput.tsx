@@ -8,7 +8,6 @@ const PageInput: React.FC = () => {
   const itemsPerPage = useSelector(
     (state: RootState) => state.pokemon.itemsPerPage
   );
-  console.log(itemsPerPage);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
