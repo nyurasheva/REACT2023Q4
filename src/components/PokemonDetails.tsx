@@ -1,57 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setLoading } from '../redux/pokemonReducer';
+import React from 'react';
+import { useSelector } from 'react-redux';
 import { RootState } from '../redux/rootReducer';
+import { useGetPokemonDetailsQuery } from '../redux/apiSlice';
 
 const PokemonDetails: React.FC<{
   onClosePokemonDetails: () => void;
 }> = ({ onClosePokemonDetails }) => {
-  const dispatch = useDispatch();
-  const { abilityDescriptions, isLoading, selectedId } = useSelector(
+  const { abilityDescriptions, selectedId, images } = useSelector(
     (state: RootState) => state.pokemon
   );
-  const [weight, setWeight] = useState<number | null>(null);
-  const [height, setHeight] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (selectedId) {
-      dispatch(setLoading(true));
-      fetch(`https://pokeapi.co/api/v2/pokemon/${selectedId}`)
-        .then((response) => response.json())
-        .then((data) => {
-          const weight = data.weight || null;
-          const height = data.height || null;
-          dispatch(setLoading(false));
-          setWeight(weight);
-          setHeight(height);
-        })
-        .catch((error) => {
-          console.error('Error fetching pokemon details: ', error);
-          dispatch(setLoading(false));
-        });
-    }
-  }, [abilityDescriptions, dispatch, selectedId]);
+  // Используем новый endpoint для получения данных о покемоне
+  const { data: pokemonDetails, isLoading: isDetailsLoading } =
+    useGetPokemonDetailsQuery(selectedId || '');
 
-  // Получаем детали покемона из состояния
-  const pokemonDetails = useSelector((state: RootState) =>
-    state.pokemon.searchResults.find((pokemon) => pokemon.name === selectedId)
-  );
+  if (!selectedId) {
+    return <div>Выберите покемона</div>;
+  }
 
   return (
     <div className="details-section">
-      {isLoading ? (
+      {isDetailsLoading ? (
         <div>Loading...</div>
       ) : pokemonDetails ? (
         <>
-          <h2>{pokemonDetails.name}</h2>
-          <img src={pokemonDetails.image} alt={pokemonDetails.name} />
+          <h2>{selectedId}</h2>
+          {images && images[selectedId] ? (
+            <img src={images[selectedId] || undefined} alt={selectedId} />
+          ) : (
+            <div>Изображение отсутствует</div>
+          )}
           <p>
             Способности:{' '}
-            {abilityDescriptions[pokemonDetails.name.toLowerCase()] ||
-              'Неизвестно'}
+            {abilityDescriptions[selectedId.toLowerCase()] || 'Неизвестно'}
           </p>
-          <p>Масса: {weight !== null ? weight : 'Неизвестно'}</p>
-          <p>Высота: {height !== null ? height : 'Неизвестно'}</p>
+          <p>
+            Масса:{' '}
+            {pokemonDetails.weight !== null
+              ? pokemonDetails.weight
+              : 'Неизвестно'}
+          </p>
+          <p>
+            Высота:{' '}
+            {pokemonDetails.height !== null
+              ? pokemonDetails.height
+              : 'Неизвестно'}
+          </p>
           <button className="button-second" onClick={onClosePokemonDetails}>
             Закрыть
           </button>
