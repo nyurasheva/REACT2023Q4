@@ -1,16 +1,14 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '../redux/rootReducer';
 import { useGetPokemonDetailsQuery } from '../redux/apiSlice';
+import { useAppSelector } from '../redux/hooks';
 
 const PokemonDetails: React.FC<{
   onClosePokemonDetails: () => void;
 }> = ({ onClosePokemonDetails }) => {
-  const { abilityDescriptions, selectedId, images } = useSelector(
-    (state: RootState) => state.pokemon
+  const { abilityDescriptions, selectedId, images } = useAppSelector(
+    (state) => state.pokemonState
   );
 
-  // Используем новый endpoint для получения данных о покемоне
   const { data: pokemonDetails, isLoading: isDetailsLoading } =
     useGetPokemonDetailsQuery(selectedId || '');
 

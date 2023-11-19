@@ -1,10 +1,21 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import SearchInput from '../components/SearchInput';
+import { setSearchTermValue } from '../redux/pokemonReducer';
+import { useAppDispatch } from '../redux/hooks';
+
+jest.mock('../redux/hooks', () => ({
+  ...jest.requireActual('../redux/hooks'),
+  useAppDispatch: jest.fn(),
+}));
 
 describe('SearchInput component', () => {
+  beforeEach(() => {
+    (useAppDispatch as jest.Mock).mockReturnValue(jest.fn());
+  });
+
   it('renders input and button correctly', () => {
-    render(<SearchInput onSearch={() => {}} />);
+    render(<SearchInput />);
 
     const inputElement = screen.getByPlaceholderText('Поиск...');
     const buttonElement = screen.getByRole('button');
@@ -14,7 +25,7 @@ describe('SearchInput component', () => {
   });
 
   it('handles input change correctly', () => {
-    render(<SearchInput onSearch={() => {}} />);
+    render(<SearchInput />);
 
     const inputElement = screen.getByPlaceholderText('Поиск...');
 
@@ -23,9 +34,11 @@ describe('SearchInput component', () => {
     expect((inputElement as HTMLInputElement).value).toBe('Pikachu');
   });
 
-  it('calls onSearch callback on button click', () => {
-    const onSearchMock = jest.fn();
-    render(<SearchInput onSearch={onSearchMock} />);
+  it('calls dispatch with setSearchTermValue action on button click', () => {
+    const dispatch = jest.fn();
+    (useAppDispatch as jest.Mock).mockReturnValue(dispatch);
+
+    render(<SearchInput />);
 
     const inputElement = screen.getByPlaceholderText('Поиск...');
     const buttonElement = screen.getByRole('button');
@@ -33,24 +46,25 @@ describe('SearchInput component', () => {
     fireEvent.change(inputElement, { target: { value: 'Charmander' } });
     fireEvent.click(buttonElement);
 
-    expect(onSearchMock).toHaveBeenCalledWith('Charmander');
+    expect(dispatch).toHaveBeenCalledWith(setSearchTermValue('Charmander'));
   });
 
-  it('calls onSearch callback on Enter key press', () => {
-    const onSearchMock = jest.fn();
-    render(<SearchInput onSearch={onSearchMock} />);
+  it('calls dispatch with setSearchTermValue action on Enter key press', () => {
+    const dispatch = jest.fn();
+    (useAppDispatch as jest.Mock).mockReturnValue(dispatch);
+
+    render(<SearchInput />);
 
     const inputElement = screen.getByPlaceholderText('Поиск...');
 
     fireEvent.change(inputElement, { target: { value: 'Bulbasaur' } });
     fireEvent.keyDown(inputElement, { key: 'Enter', code: 'Enter' });
 
-    expect(onSearchMock).toHaveBeenCalledWith('Bulbasaur');
+    expect(dispatch).toHaveBeenCalledWith(setSearchTermValue('Bulbasaur'));
   });
 
   it('saves input value to local storage on search button click', () => {
-    const onSearchMock = jest.fn();
-    render(<SearchInput onSearch={onSearchMock} />);
+    render(<SearchInput />);
 
     const inputElement = screen.getByPlaceholderText('Поиск...');
     const buttonElement = screen.getByRole('button');
@@ -64,7 +78,7 @@ describe('SearchInput component', () => {
   it('fetches value from local storage on mount', () => {
     localStorage.setItem('searchTerm', 'Jigglypuff');
 
-    render(<SearchInput onSearch={() => {}} />);
+    render(<SearchInput />);
 
     const inputElement = screen.getByPlaceholderText('Поиск...');
 

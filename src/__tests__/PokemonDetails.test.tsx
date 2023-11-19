@@ -1,29 +1,50 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { PokemonProvider } from '../context/PokemonContext';
+import { Provider } from 'react-redux';
+import store from '../redux/store';
 import PokemonDetails from '../components/PokemonDetails';
 
 describe('PokemonDetails component', () => {
-  it('displays loading indicator during data fetching', async () => {
+  it('displays "Выберите покемона" when no Pokemon is selected', async () => {
     render(
-      <PokemonProvider>
-        <PokemonDetails id="1" onClosePokemonDetails={() => {}} />
-      </PokemonProvider>
+      <Provider store={store}>
+        <PokemonDetails onClosePokemonDetails={() => {}} />
+      </Provider>
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(screen.getByText('Выберите покемона')).toBeInTheDocument();
     });
   });
 
-  it('handles absence of details', async () => {
+  it('displays loading indicator during data fetching', async () => {
+    const onClosePokemonDetailsMock = jest.fn();
+
     render(
-      <PokemonProvider>
-        <PokemonDetails id={null} onClosePokemonDetails={() => {}} />
-      </PokemonProvider>
+      <Provider store={store}>
+        <PokemonDetails onClosePokemonDetails={onClosePokemonDetailsMock} />
+      </Provider>
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Подробности отсутствуют')).toBeInTheDocument();
+      expect(screen.getByText('Выберите покемона')).toBeInTheDocument();
     });
+
+    expect(onClosePokemonDetailsMock).not.toHaveBeenCalled();
+  });
+
+  it('handles absence of details', async () => {
+    const onClosePokemonDetailsMock = jest.fn();
+
+    render(
+      <Provider store={store}>
+        <PokemonDetails onClosePokemonDetails={onClosePokemonDetailsMock} />
+      </Provider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Выберите покемона')).toBeInTheDocument();
+    });
+
+    expect(onClosePokemonDetailsMock).not.toHaveBeenCalled();
   });
 });

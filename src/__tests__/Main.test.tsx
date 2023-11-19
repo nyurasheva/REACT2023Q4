@@ -1,20 +1,18 @@
-import { act, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import store from '../redux/store';
 import { Main } from '../pages/Main';
 import { BrowserRouter } from 'react-router-dom';
-import { PokemonProvider } from '../context/PokemonContext';
-// import App from '../App';
 
 describe('Main component', () => {
   it('renders Main component', async () => {
-    await act(async () => {
-      render(
+    render(
+      <Provider store={store}>
         <BrowserRouter>
-          <PokemonProvider>
-            <Main />
-          </PokemonProvider>
+          <Main />
         </BrowserRouter>
-      );
-    });
+      </Provider>
+    );
 
     expect(screen.getByText('2023')).toBeTruthy();
   });

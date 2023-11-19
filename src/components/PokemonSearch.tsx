@@ -2,7 +2,7 @@
 
 import React, { useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import {
   setAbilityDescriptions,
   setImages,
@@ -21,14 +21,28 @@ import SearchInput from './SearchInput';
 import SearchResult from './SearchResult';
 import Pagination from './Pagination';
 import PokemonDetails from './PokemonDetails';
-import { RootState } from '../redux/rootReducer';
+import { useAppSelector } from '../redux/hooks';
+import { useGetAllPokemonsQuery, useGetPokemonsQuery } from '../redux/apiSlice';
 
 export const PokemonSearch: React.FC = () => {
   const dispatch = useDispatch();
-  const state = useSelector((state: RootState) => state.pokemon);
+  const state = useAppSelector((state) => state.pokemonState);
   const location = useLocation();
   const navigate = useNavigate();
   const prevItemsPerPageRef = useRef(state.itemsPerPage);
+
+  const { itemsPerPage, currentPage } = useAppSelector(
+    (state) => state.pokemonState
+  );
+
+  const dataAll = useGetAllPokemonsQuery().data;
+  const pokemonsData = useGetPokemonsQuery({
+    page: currentPage,
+    itemsPerPage,
+  }).data;
+  // const searchData = useSearchPokemonQuery({
+  //   searchTerm: searchTermValue,
+  // }).data;
 
   const calculateTotalCountAndPages = (count: number, itemsPerPage: number) => {
     const totalCount = count - 12;
@@ -96,49 +110,37 @@ export const PokemonSearch: React.FC = () => {
     }
   }, []);
 
-  const fetchPokemons = useCallback(
-    async (page: number = 1) => {
-      const offset = (page - 1) * state.itemsPerPage;
+  const fetchPokemons = useCallback(async () => {
+    dispatch(setLoading(true));
+    if (pokemonsData) {
+      const { totalPages } = calculateTotalCountAndPages(
+        pokemonsData.count || 0,
+        state.itemsPerPage
+      );
 
-      dispatch(setLoading(true));
+      const results: Pokemon[] = pokemonsData.results || [];
+      const fetchPromises = results.map(async (result) => {
+        const pokemonData = await fetchPokemonDetails(result.url);
+        return pokemonData;
+      });
 
-      try {
-        const response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon?offset=${offset}&limit=${state.itemsPerPage}`
-        );
-        if (response.ok) {
-          const data = await response.json();
+      const pokemonDetails = await Promise.all(fetchPromises);
+      const validPokemonDetails = pokemonDetails.filter(
+        (data) => data !== null
+      ) as Pokemon[];
 
-          const { totalPages } = calculateTotalCountAndPages(
-            data.count || 0,
-            state.itemsPerPage
-          );
-
-          const results: Pokemon[] = data.results || [];
-          const fetchPromises = results.map(async (result) => {
-            const pokemonData = await fetchPokemonDetails(result.url);
-            return pokemonData;
-          });
-
-          const pokemonDetails = await Promise.all(fetchPromises);
-          const validPokemonDetails = pokemonDetails.filter(
-            (data) => data !== null
-          ) as Pokemon[];
-
-          dispatch(setSearchResults(validPokemonDetails));
-          updatePokemonDetails(validPokemonDetails);
-          dispatch(setTotalPages(totalPages));
-        } else {
-          console.error('Error fetching data. Response not OK:', response);
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        dispatch(setLoading(false));
-      }
-    },
-    [dispatch, fetchPokemonDetails, state.itemsPerPage, updatePokemonDetails]
-  );
+      dispatch(setSearchResults(validPokemonDetails));
+      updatePokemonDetails(validPokemonDetails);
+      dispatch(setTotalPages(totalPages));
+    }
+    dispatch(setLoading(false));
+  }, [
+    dispatch,
+    fetchPokemonDetails,
+    pokemonsData,
+    state.itemsPerPage,
+    updatePokemonDetails,
+  ]);
 
   const searchPokemon = useCallback(
     async (searchTerm: string) => {
@@ -162,11 +164,11 @@ export const PokemonSearch: React.FC = () => {
   );
 
   const doSearch = useCallback(
-    (searchTerm: string, page?: number) => {
+    (searchTerm: string) => {
       if (searchTerm) {
         searchPokemon(searchTerm);
       } else {
-        fetchPokemons(page);
+        fetchPokemons();
       }
     },
     [searchPokemon, fetchPokemons]
@@ -198,7 +200,7 @@ export const PokemonSearch: React.FC = () => {
       dispatch(setItemsPerPage(newItemsPerPage));
       dispatch(setCurrentPage(newPage));
       navigate(`/search?page=${newPage}`);
-      fetchPokemons(newPage);
+      fetchPokemons();
     },
     [dispatch, fetchPokemons, navigate]
   );
@@ -211,24 +213,12 @@ export const PokemonSearch: React.FC = () => {
   useEffect(() => {
     const initPokemons = async () => {
       try {
-        const response = await fetch('https://pokeapi.co/api/v2/pokemon');
-        try {
-          const data = await response.json();
-          if (!data || !data.count) {
-            console.warn(
-              'Предупреждение: общее количество не найдено в ответе.'
-            );
-            return;
-          }
-
+        if (dataAll) {
           const { totalPages } = calculateTotalCountAndPages(
-            data.count,
+            dataAll.count,
             state.itemsPerPage
           );
-
           dispatch(setTotalPages(totalPages));
-
-          // Делаем инициализацию данных только если запрос к серверу выполнен успешно
           const savedAbilityDescriptions = localStorage.getItem(
             'abilityDescriptions'
           );
@@ -237,16 +227,12 @@ export const PokemonSearch: React.FC = () => {
               setAbilityDescriptions(JSON.parse(savedAbilityDescriptions))
             );
           }
-
           const savedImages = localStorage.getItem('pokemonImages');
           if (savedImages) {
             dispatch(setImages(JSON.parse(savedImages)));
           }
-
           const savedSearchTerm = localStorage.getItem('searchTerm');
-          doSearch(savedSearchTerm || '', state.currentPage);
-        } catch (jsonError) {
-          console.error('Ошибка при разборе JSON:', jsonError);
+          doSearch(savedSearchTerm || '');
         }
       } catch (error) {
         console.error('Ошибка при получении общего количества:', error);
@@ -254,7 +240,7 @@ export const PokemonSearch: React.FC = () => {
     };
 
     initPokemons();
-  }, [dispatch, doSearch, state.currentPage, state.itemsPerPage]);
+  }, [dataAll, dispatch, doSearch, state.currentPage, state.itemsPerPage]);
 
   useEffect(() => {
     navigate(`/search?page=${state.currentPage}`);

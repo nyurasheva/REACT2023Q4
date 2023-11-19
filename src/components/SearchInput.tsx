@@ -1,12 +1,12 @@
 // SearchInput.tsx
 
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import { setSearchTermValue } from '../redux/pokemonReducer';
+import { useAppDispatch } from '../redux/hooks';
 
 const SearchInput: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const handleSearch = () => {
     const trimmedSearchTerm = searchTerm.trim();

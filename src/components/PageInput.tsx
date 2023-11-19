@@ -1,12 +1,11 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { setItemsPerPage } from '../redux/pokemonReducer';
-import { RootState } from '../redux/rootReducer';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
 
 const PageInput: React.FC = () => {
-  const dispatch = useDispatch();
-  const itemsPerPage = useSelector(
-    (state: RootState) => state.pokemon.itemsPerPage
+  const dispatch = useAppDispatch();
+  const itemsPerPage = useAppSelector(
+    (state) => state.pokemonState.itemsPerPage
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

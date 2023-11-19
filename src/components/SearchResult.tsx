@@ -1,10 +1,9 @@
 // SearchResult.tsx
 
 import React from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '../redux/rootReducer';
 import logo from '../assets/img/logo.png';
 import { Pokemon } from '../redux/pokemonReducer';
+import { useAppSelector } from '../redux/hooks';
 
 interface SearchResultProps {
   onItemClick: (pokemonName: string) => void;
@@ -16,7 +15,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
   onClosePokemonDetails,
 }) => {
   const { isLoading, searchResults, abilityDescriptions, images, selectedId } =
-    useSelector((state: RootState) => state.pokemon);
+    useAppSelector((state) => state.pokemonState);
 
   const handleItemClick = (pokemonName: string) => {
     onItemClick(pokemonName);
