@@ -40,9 +40,6 @@ export const PokemonSearch: React.FC = () => {
     page: currentPage,
     itemsPerPage,
   }).data;
-  // const searchData = useSearchPokemonQuery({
-  //   searchTerm: searchTermValue,
-  // }).data;
 
   const calculateTotalCountAndPages = (count: number, itemsPerPage: number) => {
     const totalCount = count - 12;

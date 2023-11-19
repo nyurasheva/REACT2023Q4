@@ -43,10 +43,9 @@ export const api = createApi({
     }),
     searchPokemon: builder.query<ResponsePokemonSearch, { searchTerm: string }>(
       {
-        query: ({ searchTerm }) => `/${searchTerm.toLowerCase()}`,
+        query: ({ searchTerm }) => ({ url: `/${searchTerm.toLowerCase()}` }),
       }
     ),
-
     getPokemonDetails: builder.query<
       { weight: number; height: number },
       string

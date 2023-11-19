@@ -1,0 +1,191 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<div
+  className="tygh"
+>
+  <header
+    className="header container"
+  >
+    <div
+      className="row"
+    >
+      <div
+        className="top-logo"
+      >
+        <div
+          className="logo-container"
+        >
+          <a
+            aria-current="page"
+            className="active"
+            href="/"
+            onClick={[Function]}
+            title=""
+          >
+            <img
+              alt="logo"
+              className="logo-container__image"
+              src="test-file-stub"
+              title=""
+            />
+          </a>
+        </div>
+      </div>
+      <div>
+        <button
+          className="button"
+          onClick={[Function]}
+        >
+          Выбросить ошибку
+        </button>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div
+      className="content container"
+    >
+      <div
+        className="top-section"
+      >
+        <div
+          className="page-input"
+        >
+          <label
+            htmlFor="itemsPerPageInput"
+          >
+            Кол-во покемонов на странице: 
+          </label>
+          <div
+            className="changer"
+          >
+            <button
+              className="increase"
+              onClick={[Function]}
+            >
+              +
+            </button>
+            <input
+              className="amount"
+              id="itemsPerPageInput"
+              onChange={[Function]}
+              type="text"
+              value={20}
+            />
+            <button
+              className="decrease"
+              onClick={[Function]}
+            >
+              −
+            </button>
+          </div>
+        </div>
+        <div
+          className="row"
+        >
+          <div
+            className="search-directory"
+          >
+            <input
+              onChange={[Function]}
+              onKeyDown={[Function]}
+              placeholder="Поиск..."
+              type="text"
+              value=""
+            />
+            <button
+              onClick={[Function]}
+            />
+          </div>
+        </div>
+      </div>
+      <div
+        className="bottom-section"
+      >
+        <div
+          className="search-results"
+          onClick={[Function]}
+        >
+          <h2>
+            Результаты поиска
+          </h2>
+          <div
+            className="pokemon"
+          >
+            <div>
+              Нет результатов
+            </div>
+          </div>
+        </div>
+        <div
+          className="pagination-container"
+        >
+          <ul
+            aria-label="Pagination"
+            className="pagination"
+            role="navigation"
+          >
+            <li
+              className="previous disabled"
+            >
+              <a
+                aria-disabled="true"
+                aria-label="Previous page"
+                className=" "
+                onClick={[Function]}
+                onKeyPress={[Function]}
+                rel="prev"
+                role="button"
+                tabIndex="-1"
+              >
+                Назад
+              </a>
+            </li>
+            <li
+              className="active"
+            >
+              <a
+                aria-current="page"
+                aria-label="Page 1 is your current page"
+                onClick={[Function]}
+                onKeyPress={[Function]}
+                rel="canonical"
+                role="button"
+                tabIndex="-1"
+              >
+                1
+              </a>
+            </li>
+            <li
+              className="next disabled"
+            >
+              <a
+                aria-disabled="true"
+                aria-label="Next page"
+                className=" "
+                onClick={[Function]}
+                onKeyPress={[Function]}
+                rel="next"
+                role="button"
+                tabIndex="-1"
+              >
+                Вперед
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer
+    className="footer container"
+  >
+    <div
+      className="row"
+    >
+      2023
+    </div>
+  </footer>
+</div>
+`;
