@@ -48,7 +48,6 @@ describe('NotFound Component', () => {
     expect(
       screen.getByText('Запрашиваемая страница не найдена.')
     ).toBeInTheDocument();
-
     const link = screen.getByText('Перейти на главную страницу');
     expect(link).toBeInTheDocument();
     expect(link.getAttribute('href')).toBe(MAIN_ROUTE);

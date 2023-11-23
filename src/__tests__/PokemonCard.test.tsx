@@ -1,11 +1,10 @@
-import React from 'react';
-import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
-import SearchResult from '../components/SearchResult';
+import { PokemonCard } from '../components/PokemonCard';
 import { api } from '../redux/apiSlice';
 import pokemonReducer from '../redux/pokemonReducer';
+import { MemoryRouter } from 'react-router-dom';
 
 const mockStore = configureStore({
   reducer: {
@@ -16,14 +15,18 @@ const mockStore = configureStore({
     getDefaultMiddleware().concat(api.middleware),
 });
 
-describe('SearchResult Component', () => {
-  it('displays the formation', () => {
-    render(
+describe('PokemonCard Component', () => {
+  it('displays the pokemon name when data is available', () => {
+    const pokemonUrl = 'https://pokeapi.co/api/v2/pokemon/1';
+    const { getByText } = render(
       <Provider store={mockStore}>
         <MemoryRouter>
-          <SearchResult onClosePokemonDetails={() => {}} />
+          <PokemonCard url={pokemonUrl} />
         </MemoryRouter>
       </Provider>
     );
+
+    const pokemonNameElement = getByText(/Loading.../i, { exact: false });
+    expect(pokemonNameElement).toBeInTheDocument();
   });
 });

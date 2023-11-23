@@ -43,10 +43,10 @@ describe('SearchInput component', () => {
     const inputElement = screen.getByPlaceholderText('Поиск...');
     const buttonElement = screen.getByRole('button');
 
-    fireEvent.change(inputElement, { target: { value: 'Charmander' } });
+    fireEvent.change(inputElement, { target: { value: 'charmander' } });
     fireEvent.click(buttonElement);
 
-    expect(dispatch).toHaveBeenCalledWith(setSearchTermValue('Charmander'));
+    expect(dispatch).toHaveBeenCalledWith(setSearchTermValue('charmander'));
   });
 
   it('calls dispatch with setSearchTermValue action on Enter key press', () => {
@@ -57,10 +57,10 @@ describe('SearchInput component', () => {
 
     const inputElement = screen.getByPlaceholderText('Поиск...');
 
-    fireEvent.change(inputElement, { target: { value: 'Bulbasaur' } });
+    fireEvent.change(inputElement, { target: { value: 'bulbasaur' } });
     fireEvent.keyDown(inputElement, { key: 'Enter', code: 'Enter' });
 
-    expect(dispatch).toHaveBeenCalledWith(setSearchTermValue('Bulbasaur'));
+    expect(dispatch).toHaveBeenCalledWith(setSearchTermValue('bulbasaur'));
   });
 
   it('saves input value to local storage on search button click', () => {
@@ -69,14 +69,14 @@ describe('SearchInput component', () => {
     const inputElement = screen.getByPlaceholderText('Поиск...');
     const buttonElement = screen.getByRole('button');
 
-    fireEvent.change(inputElement, { target: { value: 'Squirtle' } });
+    fireEvent.change(inputElement, { target: { value: 'squirtle' } });
     fireEvent.click(buttonElement);
 
-    expect(localStorage.getItem('searchTerm')).toBe('Squirtle');
+    expect(localStorage.getItem('searchTermValue')).toBe('squirtle');
   });
 
   it('fetches value from local storage on mount', () => {
-    localStorage.setItem('searchTerm', 'Jigglypuff');
+    localStorage.setItem('searchTermValue', 'Jigglypuff');
 
     render(<SearchInput />);
 

@@ -6,7 +6,7 @@ export interface Pokemon {
   name: string;
   url: string;
   image?: string;
-  abilities: string[];
+  abilities?: string[];
 }
 
 export interface PokemonState {

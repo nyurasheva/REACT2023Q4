@@ -9,8 +9,8 @@ const SearchInput: React.FC = () => {
   const dispatch = useAppDispatch();
 
   const handleSearch = () => {
-    const trimmedSearchTerm = searchTerm.trim();
-    localStorage.setItem('searchTerm', trimmedSearchTerm);
+    const trimmedSearchTerm = searchTerm.trim().toLowerCase();
+    localStorage.setItem('searchTermValue', trimmedSearchTerm);
     dispatch(setSearchTermValue(trimmedSearchTerm));
   };
 
@@ -25,7 +25,7 @@ const SearchInput: React.FC = () => {
   };
 
   useEffect(() => {
-    const savedSearchTerm = localStorage.getItem('searchTerm');
+    const savedSearchTerm = localStorage.getItem('searchTermValue');
     if (savedSearchTerm) {
       setSearchTerm(savedSearchTerm);
     }

@@ -28,6 +28,8 @@ type ResponsePokemonSearch = {
       url: string;
     };
   }>;
+  weight: number;
+  height: number;
 };
 
 export const api = createApi({
@@ -46,14 +48,11 @@ export const api = createApi({
         query: ({ searchTerm }) => ({ url: `/${searchTerm.toLowerCase()}` }),
       }
     ),
-    getPokemonDetails: builder.query<
-      { weight: number; height: number },
-      string
-    >({
+    getPokemonDetails: builder.query<ResponsePokemonSearch, string>({
       query: (pokemonId) => `/${pokemonId}`,
     }),
-    getAllPokemons: builder.query<ResponsePokemon, void>({
-      query: () => '',
+    getAllPokemons: builder.query<ResponsePokemon, { count: number }>({
+      query: ({ count }) => `?limit=${count}`,
     }),
   }),
 });

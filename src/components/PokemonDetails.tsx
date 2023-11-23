@@ -1,3 +1,5 @@
+// PokemonDetails.tsx
+
 import React from 'react';
 import { useGetPokemonDetailsQuery } from '../redux/apiSlice';
 import { useAppSelector } from '../redux/hooks';
@@ -5,7 +7,7 @@ import { useAppSelector } from '../redux/hooks';
 const PokemonDetails: React.FC<{
   onClosePokemonDetails: () => void;
 }> = ({ onClosePokemonDetails }) => {
-  const { abilityDescriptions, selectedId, images } = useAppSelector(
+  const { selectedId, abilityDescriptions, images } = useAppSelector(
     (state) => state.pokemonState
   );
 

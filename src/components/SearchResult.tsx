@@ -1,25 +1,55 @@
 // SearchResult.tsx
 
-import React from 'react';
-import logo from '../assets/img/logo.png';
-import { Pokemon } from '../redux/pokemonReducer';
-import { useAppSelector } from '../redux/hooks';
+import React, { useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useGetAllPokemonsQuery, useGetPokemonsQuery } from '../redux/apiSlice';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
+import {
+  Pokemon,
+  setIsSearching,
+  setLoading,
+  setSearchResults,
+} from '../redux/pokemonReducer';
+import { PokemonCard } from './PokemonCard';
 
 interface SearchResultProps {
-  onItemClick: (pokemonName: string) => void;
   onClosePokemonDetails: () => void;
 }
 
 const SearchResult: React.FC<SearchResultProps> = ({
-  onItemClick,
   onClosePokemonDetails,
 }) => {
-  const { isLoading, searchResults, abilityDescriptions, images, selectedId } =
-    useAppSelector((state) => state.pokemonState);
+  const dispatch = useAppDispatch();
+  const {
+    isLoading,
+    searchResults,
+    selectedId,
+    itemsPerPage,
+    currentPage,
+    searchTermValue,
+  } = useAppSelector((state) => state.pokemonState);
 
-  const handleItemClick = (pokemonName: string) => {
-    onItemClick(pokemonName);
-  };
+  const pokemonsData = useGetPokemonsQuery({
+    page: currentPage,
+    itemsPerPage,
+  }).data;
+
+  const allPokemonsData = useGetAllPokemonsQuery({
+    count: pokemonsData?.count || 0,
+  }).data;
+
+  const navigate = useNavigate();
+
+  const displayResults = useMemo(() => {
+    const resultSearch = [
+      {
+        name: searchTermValue.toLowerCase(),
+        url: `https://pokeapi.co/api/v2/pokemon/${searchTermValue.toLowerCase()}/`,
+      },
+    ];
+
+    return searchTermValue ? resultSearch : pokemonsData?.results || [];
+  }, [searchTermValue, pokemonsData]);
 
   const handleContainerClick = () => {
     if (selectedId !== null) {
@@ -27,46 +57,64 @@ const SearchResult: React.FC<SearchResultProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (pokemonsData) {
+      dispatch(setLoading(true));
+      const fetchData = async () => {
+        try {
+          const arrPokemons = allPokemonsData?.results.map(
+            (pokemon) => pokemon.name
+          );
+          const isIncluded = arrPokemons?.includes(searchTermValue);
+          const path = searchTermValue
+            ? '/search'
+            : `/search?page=${currentPage}`;
+
+          dispatch(
+            setSearchResults(
+              !isIncluded && searchTermValue ? [] : displayResults
+            )
+          );
+          navigate(path);
+        } catch (error) {
+        } finally {
+          dispatch(setLoading(false));
+        }
+      };
+      fetchData().catch((error) => {
+        console.error('Произошла ошибка:', error);
+        dispatch(setSearchResults([])); // Очистить результаты поиска при ошибке
+        dispatch(setLoading(false));
+      });
+    }
+  }, [
+    allPokemonsData?.results,
+    currentPage,
+    dispatch,
+    displayResults,
+    navigate,
+    pokemonsData,
+    searchTermValue,
+  ]);
+
+  useEffect(() => {
+    dispatch(setIsSearching(Boolean(searchTermValue)));
+  }, [dispatch, searchTermValue]);
+
   return (
     <div className="search-results" onClick={handleContainerClick}>
       <h2>Результаты поиска</h2>
-      <div className="pokemon">
-        {isLoading && <div className="loading">Loading...</div>}
-        {Boolean(searchResults.length) &&
-          !isLoading &&
-          searchResults.map((result: Pokemon, index: number) => (
-            <div
-              key={index}
-              className="result-item pokemon__wrapper"
-              onClick={() => {
-                handleItemClick(result.name);
-              }}
-            >
-              {images[result.name] && (
-                <div className="pokemon__image">
-                  {images[result.name] !== null ? (
-                    <img src={images[result.name] || logo} alt={result.name} />
-                  ) : (
-                    <div>Изображение недоступно</div>
-                  )}
-                </div>
-              )}
-              <h3 className="pokemon__title">{result.name}</h3>
-              <div className="pokemon__description">
-                Вас приветствует покемон{' '}
-                {result.name.charAt(0).toUpperCase() + result.name.slice(1)}.
-              </div>
-              {abilityDescriptions[result.name.toLowerCase()] !== null && (
-                <div className="pokemon__ability">
-                  Способность: {abilityDescriptions[result.name.toLowerCase()]}
-                </div>
-              )}
-            </div>
+      {isLoading && <div className="loading">Loading...</div>}
+      {Boolean(searchResults.length) && !isLoading && (
+        <div className="pokemon">
+          {displayResults.map((result: Pokemon, index: number) => (
+            <PokemonCard url={result.url} key={`${result.name}-${index}`} />
           ))}
-        {!Boolean(searchResults.length) && !isLoading && (
-          <div>Нет результатов</div>
-        )}
-      </div>
+        </div>
+      )}
+      {!Boolean(searchResults.length) && !isLoading && (
+        <div>Нет результатов</div>
+      )}
     </div>
   );
 };
