@@ -1,8 +1,8 @@
 // PokemonCard.tsx
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import logo from '../assets/svg/pokemon.svg';
+import Image from 'next/image';
+// import { useRouter } from 'next/router';
 import { useSearchPokemonQuery } from '../redux/apiSlice';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import {
@@ -18,10 +18,10 @@ interface PokemonCardInter {
 
 export const PokemonCard: React.FC<PokemonCardInter> = ({ url }) => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { abilityDescriptions, images, isLoading, currentPage } =
-    useAppSelector((state) => state.pokemonState);
+  // const router = useRouter();
+  const { abilityDescriptions, images, isLoading } = useAppSelector(
+    (state) => state.pokemonState
+  );
 
   const pokemonUrl = url.split('/');
   const pokemonId = pokemonUrl[pokemonUrl.length - 2];
@@ -37,21 +37,13 @@ export const PokemonCard: React.FC<PokemonCardInter> = ({ url }) => {
         const imageUrl =
           searchData.sprites.other['official-artwork'].front_default;
 
-        const img = new Image();
-        img.src = imageUrl;
-        img.onload = () => {
-          setImageLoading(false);
+        // Не используйте new Image(), используйте тег Image в JSX для отображения изображения
+        setImageLoading(false);
 
-          setPokemonImages((prevImages) => ({
-            ...prevImages,
-            [searchData!.name]: imageUrl,
-          }));
-        };
-
-        img.onerror = () => {
-          console.error(`Failed to load image: ${imageUrl}`);
-          setImageLoading(false);
-        };
+        setPokemonImages((prevImages) => ({
+          ...prevImages,
+          [searchData!.name]: imageUrl,
+        }));
       } else {
         console.error('Error fetching abilities. Response not OK:');
         setImageLoading(false);
@@ -88,7 +80,10 @@ export const PokemonCard: React.FC<PokemonCardInter> = ({ url }) => {
       );
     }
     dispatch(setIsDetailsOpen(true));
-    navigate(`${location.pathname}?page=${currentPage}&details=${pokemonName}`);
+    // router.push(
+    //   `${location.pathname}`
+    //   // `${location.pathname}?page=${currentPage}&details=${pokemonName}`
+    // );
   };
 
   if (!searchData || isLoading || imageLoading) {
@@ -102,9 +97,14 @@ export const PokemonCard: React.FC<PokemonCardInter> = ({ url }) => {
     >
       <div className="pokemon__image">
         {pokemonImages[searchData.name] !== null ? (
-          <img
-            src={pokemonImages[searchData.name] || logo}
+          <Image
+            className="logo-container__image"
             alt={searchData.name}
+            title=""
+            src={pokemonImages[searchData.name] || '/pokemon.svg'}
+            priority={true}
+            width={100}
+            height={100}
           />
         ) : (
           <div>Изображение не найдено</div>

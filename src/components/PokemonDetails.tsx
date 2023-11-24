@@ -3,6 +3,7 @@
 import React from 'react';
 import { useGetPokemonDetailsQuery } from '../redux/apiSlice';
 import { useAppSelector } from '../redux/hooks';
+import Image from 'next/image';
 
 const PokemonDetails: React.FC<{
   onClosePokemonDetails: () => void;
@@ -18,6 +19,11 @@ const PokemonDetails: React.FC<{
     return <div>Выберите покемона</div>;
   }
 
+  const imageUrl = images && images[selectedId];
+  if (imageUrl === null) {
+    return <div>Изображение отсутствует</div>;
+  }
+
   return (
     <div className="details-section">
       {isDetailsLoading ? (
@@ -25,8 +31,10 @@ const PokemonDetails: React.FC<{
       ) : pokemonDetails ? (
         <>
           <h2>{selectedId}</h2>
-          {images && images[selectedId] ? (
-            <img src={images[selectedId] || undefined} alt={selectedId} />
+          {imageUrl ? (
+            // {images && images[selectedId] ? (
+            // <img src={images[selectedId] || undefined} alt={selectedId} />
+            <Image src={imageUrl} alt={selectedId} width={300} height={300} />
           ) : (
             <div>Изображение отсутствует</div>
           )}

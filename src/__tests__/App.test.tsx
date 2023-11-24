@@ -1,11 +1,10 @@
 import { act, render } from '@testing-library/react';
-
-import App from '../App';
+import { Main } from '@/pages/Main';
 
 describe('App component', () => {
   it('renders without crashing', async () => {
     await act(async () => {
-      render(<App />);
+      render(<Main />);
     });
   });
 });

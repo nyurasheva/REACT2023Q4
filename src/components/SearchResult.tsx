@@ -1,7 +1,7 @@
 // SearchResult.tsx
 
 import React, { useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useRouter } from 'next/router';
 import { useGetAllPokemonsQuery, useGetPokemonsQuery } from '../redux/apiSlice';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import {
@@ -38,7 +38,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
     count: pokemonsData?.count || 0,
   }).data;
 
-  const navigate = useNavigate();
+  // const router = useRouter();
 
   const displayResults = useMemo(() => {
     const resultSearch = [
@@ -66,16 +66,15 @@ const SearchResult: React.FC<SearchResultProps> = ({
             (pokemon) => pokemon.name
           );
           const isIncluded = arrPokemons?.includes(searchTermValue);
-          const path = searchTermValue
-            ? '/search'
-            : `/search?page=${currentPage}`;
+          // const path = searchTermValue ? '/search' : `/`;
+          // : `/search?page=${currentPage}`;
 
           dispatch(
             setSearchResults(
               !isIncluded && searchTermValue ? [] : displayResults
             )
           );
-          navigate(path);
+          // router.push(path);
         } catch (error) {
         } finally {
           dispatch(setLoading(false));
@@ -83,7 +82,6 @@ const SearchResult: React.FC<SearchResultProps> = ({
       };
       fetchData().catch((error) => {
         console.error('Произошла ошибка:', error);
-        dispatch(setSearchResults([])); // Очистить результаты поиска при ошибке
         dispatch(setLoading(false));
       });
     }
@@ -92,7 +90,6 @@ const SearchResult: React.FC<SearchResultProps> = ({
     currentPage,
     dispatch,
     displayResults,
-    navigate,
     pokemonsData,
     searchTermValue,
   ]);
