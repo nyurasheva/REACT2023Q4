@@ -2,6 +2,9 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import store from '../redux/store';
 import PokemonDetails from '../components/PokemonDetails';
+import { axe, toHaveNoViolations } from 'jest-axe';
+
+expect.extend(toHaveNoViolations);
 
 describe('PokemonDetails component', () => {
   it('displays "Выберите покемона" when no Pokemon is selected', async () => {
@@ -46,5 +49,16 @@ describe('PokemonDetails component', () => {
     });
 
     expect(onClosePokemonDetailsMock).not.toHaveBeenCalled();
+  });
+
+  it('should not have any accessibility violations', async () => {
+    const { container } = render(
+      <Provider store={store}>
+        <PokemonDetails onClosePokemonDetails={() => {}} />
+      </Provider>
+    );
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 });

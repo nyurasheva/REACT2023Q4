@@ -1,28 +1,26 @@
-import React from 'react';
-import { MemoryRouter } from 'react-router-dom';
-import { configureStore } from '@reduxjs/toolkit';
 import { render } from '@testing-library/react';
-import { Provider } from 'react-redux';
 import SearchResult from '../components/SearchResult';
-import { api } from '../redux/apiSlice';
-import pokemonReducer from '../redux/pokemonReducer';
+import { Provider } from 'react-redux';
+import store from '../redux/store';
+import { NextRouter, useRouter } from 'next/router';
 
-const mockStore = configureStore({
-  reducer: {
-    pokemonState: pokemonReducer,
-    [api.reducerPath]: api.reducer,
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(api.middleware),
-});
+jest.mock('next/router', () => ({
+  __esModule: true,
+  ...(jest.requireActual('next/router') as NextRouter),
+  useRouter: jest.fn(),
+}));
 
 describe('SearchResult Component', () => {
   it('displays the formation', () => {
+    (useRouter as jest.Mock).mockImplementation(() => ({
+      pathname: '/search',
+      query: {},
+      push: jest.fn(),
+    }));
+
     render(
-      <Provider store={mockStore}>
-        <MemoryRouter>
-          <SearchResult onClosePokemonDetails={() => {}} />
-        </MemoryRouter>
+      <Provider store={store}>
+        <SearchResult onClosePokemonDetails={() => {}} />
       </Provider>
     );
   });

@@ -6,6 +6,7 @@ export default {
     '\\.(jpg|jpeg|png|gif|webp|svg)$': '<rootDir>/src/__tests__/__mocks__/fileMock.ts',
     '\\.(css|less)$': 'identity-obj-proxy',
     '\\.(mp4)$': '<rootDir>/src/__tests__/__mocks__/fileMock.ts',
+    '^@emotion/react/jsx-dev-runtime$': '@emotion/react/jsx-dev-runtime',
   },
   coverageProvider: 'v8',
   collectCoverage: true,
@@ -21,8 +22,7 @@ export default {
   ],
   testEnvironment: 'jsdom', 
   transform: {
-    '^.+\\.jsx?$': 'babel-jest',
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.tsx?$': 'babel-jest',
   },
   coverageThreshold: {
     "global": {
@@ -33,4 +33,5 @@ export default {
     }
   }, 
   setupFilesAfterEnv: ['./jest-setup.ts'],
+  resolver: 'jest-ts-webcompat-resolver',
 };

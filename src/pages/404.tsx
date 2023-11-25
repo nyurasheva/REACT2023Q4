@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import Link from 'next/link';
 import { MAIN_ROUTE } from '../constants/route';
 import { Header } from '../components/Header';
 import Footer from '../components/Footer';
@@ -22,13 +22,7 @@ const NotFound = () => {
             </p>
             <div className="exception__links">
               <div className="exception__links-item">
-                <NavLink
-                  to={MAIN_ROUTE}
-                  title=""
-                  className="exception__links-a"
-                >
-                  Перейти на главную страницу
-                </NavLink>
+                <Link href={MAIN_ROUTE}>Перейти на главную страницу</Link>
               </div>
             </div>
           </div>
@@ -39,4 +33,4 @@ const NotFound = () => {
   );
 };
 
-export { NotFound };
+export default NotFound;

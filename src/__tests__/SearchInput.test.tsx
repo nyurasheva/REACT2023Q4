@@ -4,6 +4,12 @@ import SearchInput from '../components/SearchInput';
 import { setSearchTermValue } from '../redux/pokemonReducer';
 import { useAppDispatch } from '../redux/hooks';
 
+jest.mock('next/router', () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+  }),
+}));
+
 jest.mock('../redux/hooks', () => ({
   ...jest.requireActual('../redux/hooks'),
   useAppDispatch: jest.fn(),

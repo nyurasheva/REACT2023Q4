@@ -3,13 +3,13 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useGetPokemonsQuery } from '../redux/apiSlice';
-import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import {
   setCurrentPage,
   setSearchTermValue,
   setSelectedId,
   setTotalPages,
-} from '@/redux/pokemonReducer';
+} from '../redux/pokemonReducer';
 import PageInput from './PageInput';
 import SearchInput from './SearchInput';
 import PokemonDetails from './PokemonDetails';
