@@ -1,10 +1,9 @@
 // PokemonSearch.tsx
 
-import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useGetPokemonsQuery } from '../redux/apiSlice';
-import { useAppDispatch } from '@/redux/hooks';
-import { useAppSelector } from '@/redux/store';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
 import {
   setCurrentPage,
   setSearchTermValue,
@@ -35,8 +34,6 @@ export const PokemonSearch: React.FC = () => {
     itemsPerPage,
   }).data;
 
-  // const [searchParams] = useSearchParams();
-
   const calculateTotalCountAndPages = (count: number, itemsPerPage: number) => {
     const totalCount = count - 32;
     const totalPages = Math.ceil(totalCount / itemsPerPage);
@@ -45,12 +42,8 @@ export const PokemonSearch: React.FC = () => {
 
   const handleSearchResultClose = () => {
     dispatch(setSelectedId(null));
+    router.push(`/search?page=${currentPage}`);
   };
-
-  // useEffect(() => {
-  //   router.push(`${location.pathname}`);
-  //   router.push(`${location.pathname}?page=${currentPage}`);
-  // }, [currentPage, router]);
 
   useEffect(() => {
     const initPokemons = async () => {
@@ -77,9 +70,17 @@ export const PokemonSearch: React.FC = () => {
     }
   }, [dispatch, router.query.page]);
 
-  // useEffect(() => {
-  //   router.push(`/search?page=${currentPage}`);
-  // }, [currentPage, router]);
+  useEffect(() => {
+    const updateUrl = () => {
+      if (currentPage !== Number(router.query.page)) {
+        router.push(`/search?page=${currentPage}`, undefined, {
+          shallow: true,
+        });
+      }
+    };
+
+    updateUrl();
+  }, [currentPage, router]);
 
   useEffect(() => {
     const savedSearchTerm = localStorage.getItem('searchTermValue');

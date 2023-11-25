@@ -1,17 +1,20 @@
 // SearchInput.tsx
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { setSearchTermValue } from '../redux/pokemonReducer';
 import { useAppDispatch } from '../redux/hooks';
 
 const SearchInput: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const handleSearch = () => {
     const trimmedSearchTerm = searchTerm.trim().toLowerCase();
     localStorage.setItem('searchTermValue', trimmedSearchTerm);
     dispatch(setSearchTermValue(trimmedSearchTerm));
+    router.push(`/search`);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

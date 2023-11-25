@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
-// import { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { useSearchPokemonQuery } from '../redux/apiSlice';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import {
@@ -18,10 +18,9 @@ interface PokemonCardInter {
 
 export const PokemonCard: React.FC<PokemonCardInter> = ({ url }) => {
   const dispatch = useAppDispatch();
-  // const router = useRouter();
-  const { abilityDescriptions, images, isLoading } = useAppSelector(
-    (state) => state.pokemonState
-  );
+  const router = useRouter();
+  const { abilityDescriptions, images, isLoading, currentPage } =
+    useAppSelector((state) => state.pokemonState);
 
   const pokemonUrl = url.split('/');
   const pokemonId = pokemonUrl[pokemonUrl.length - 2];
@@ -37,7 +36,6 @@ export const PokemonCard: React.FC<PokemonCardInter> = ({ url }) => {
         const imageUrl =
           searchData.sprites.other['official-artwork'].front_default;
 
-        // Не используйте new Image(), используйте тег Image в JSX для отображения изображения
         setImageLoading(false);
 
         setPokemonImages((prevImages) => ({
@@ -80,10 +78,10 @@ export const PokemonCard: React.FC<PokemonCardInter> = ({ url }) => {
       );
     }
     dispatch(setIsDetailsOpen(true));
-    // router.push(
-    //   `${location.pathname}`
-    //   // `${location.pathname}?page=${currentPage}&details=${pokemonName}`
-    // );
+    router.push(
+      // `${location.pathname}`
+      `${location.pathname}?page=${currentPage}&details=${pokemonName}`
+    );
   };
 
   if (!searchData || isLoading || imageLoading) {

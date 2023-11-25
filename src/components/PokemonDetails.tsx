@@ -32,8 +32,6 @@ const PokemonDetails: React.FC<{
         <>
           <h2>{selectedId}</h2>
           {imageUrl ? (
-            // {images && images[selectedId] ? (
-            // <img src={images[selectedId] || undefined} alt={selectedId} />
             <Image src={imageUrl} alt={selectedId} width={300} height={300} />
           ) : (
             <div>Изображение отсутствует</div>

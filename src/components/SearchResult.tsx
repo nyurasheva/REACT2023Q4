@@ -1,7 +1,7 @@
 // SearchResult.tsx
 
 import React, { useEffect, useMemo } from 'react';
-// import { useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { useGetAllPokemonsQuery, useGetPokemonsQuery } from '../redux/apiSlice';
 import { useAppDispatch, useAppSelector } from '../redux/hooks';
 import {
@@ -38,7 +38,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
     count: pokemonsData?.count || 0,
   }).data;
 
-  // const router = useRouter();
+  const router = useRouter();
 
   const displayResults = useMemo(() => {
     const resultSearch = [
@@ -54,6 +54,8 @@ const SearchResult: React.FC<SearchResultProps> = ({
   const handleContainerClick = () => {
     if (selectedId !== null) {
       onClosePokemonDetails();
+      // const path = searchTermValue ? '/search' : `/search?page=${currentPage}`;
+      // router.push(path);
     }
   };
 
@@ -66,15 +68,16 @@ const SearchResult: React.FC<SearchResultProps> = ({
             (pokemon) => pokemon.name
           );
           const isIncluded = arrPokemons?.includes(searchTermValue);
-          // const path = searchTermValue ? '/search' : `/`;
-          // : `/search?page=${currentPage}`;
+          // const path = searchTermValue
+          //   ? '/search'
+          //   : `/search?page=${currentPage}`;
 
           dispatch(
             setSearchResults(
               !isIncluded && searchTermValue ? [] : displayResults
             )
           );
-          // router.push(path);
+          // router.push(path, undefined, { shallow: true });
         } catch (error) {
         } finally {
           dispatch(setLoading(false));
@@ -91,6 +94,7 @@ const SearchResult: React.FC<SearchResultProps> = ({
     dispatch,
     displayResults,
     pokemonsData,
+    router,
     searchTermValue,
   ]);
 

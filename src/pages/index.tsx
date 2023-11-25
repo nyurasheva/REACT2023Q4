@@ -1,3 +1,5 @@
+// index.tsx
+
 import { Main } from './Main';
 
 const Home: React.FC = () => {
