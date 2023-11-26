@@ -61,4 +61,23 @@ describe('PokemonDetails component', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
+
+  it('displays "Подробности отсутствуют" when abilities information is not available', async () => {
+    const selectedId = 'pikachu';
+    jest.spyOn(require('../redux/hooks'), 'useAppSelector').mockReturnValue({
+      selectedId,
+      images: {},
+      abilityDescriptions: {},
+    });
+
+    render(
+      <Provider store={store}>
+        <PokemonDetails onClosePokemonDetails={() => {}} />
+      </Provider>
+    );
+
+    await screen.findByText('Подробности отсутствуют');
+    const abilitiesInfo = screen.queryByText('Способности:');
+    expect(abilitiesInfo).not.toBeInTheDocument();
+  });
 });

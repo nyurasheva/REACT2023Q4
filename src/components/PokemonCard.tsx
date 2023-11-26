@@ -79,7 +79,6 @@ export const PokemonCard: React.FC<PokemonCardInter> = ({ url }) => {
     }
     dispatch(setIsDetailsOpen(true));
     router.push(
-      // `${location.pathname}`
       `${location.pathname}?page=${currentPage}&details=${pokemonName}`
     );
   };

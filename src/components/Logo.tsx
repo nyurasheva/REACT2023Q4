@@ -1,13 +1,8 @@
 import Image from 'next/image';
-import { useRouter } from 'next/router';
-import { MAIN_ROUTE } from '../constants/route';
 
 const Logo = () => {
-  const router = useRouter();
-
   const handleClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.preventDefault();
-    router.push(MAIN_ROUTE);
   };
 
   return (
