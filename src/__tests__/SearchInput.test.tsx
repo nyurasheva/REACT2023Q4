@@ -21,7 +21,7 @@ describe('SearchInput component', () => {
   });
 
   it('renders input and button correctly', () => {
-    render(<SearchInput />);
+    render(<SearchInput onClosePokemonDetails={() => {}} />);
 
     const inputElement = screen.getByPlaceholderText('Поиск...');
     const buttonElement = screen.getByRole('button');
@@ -31,7 +31,7 @@ describe('SearchInput component', () => {
   });
 
   it('handles input change correctly', () => {
-    render(<SearchInput />);
+    render(<SearchInput onClosePokemonDetails={() => {}} />);
 
     const inputElement = screen.getByPlaceholderText('Поиск...');
 
@@ -44,7 +44,7 @@ describe('SearchInput component', () => {
     const dispatch = jest.fn();
     (useAppDispatch as jest.Mock).mockReturnValue(dispatch);
 
-    render(<SearchInput />);
+    render(<SearchInput onClosePokemonDetails={() => {}} />);
 
     const inputElement = screen.getByPlaceholderText('Поиск...');
     const buttonElement = screen.getByRole('button');
@@ -59,7 +59,7 @@ describe('SearchInput component', () => {
     const dispatch = jest.fn();
     (useAppDispatch as jest.Mock).mockReturnValue(dispatch);
 
-    render(<SearchInput />);
+    render(<SearchInput onClosePokemonDetails={() => {}} />);
 
     const inputElement = screen.getByPlaceholderText('Поиск...');
 
@@ -70,7 +70,7 @@ describe('SearchInput component', () => {
   });
 
   it('saves input value to local storage on search button click', () => {
-    render(<SearchInput />);
+    render(<SearchInput onClosePokemonDetails={() => {}} />);
 
     const inputElement = screen.getByPlaceholderText('Поиск...');
     const buttonElement = screen.getByRole('button');
@@ -84,7 +84,7 @@ describe('SearchInput component', () => {
   it('fetches value from local storage on mount', () => {
     localStorage.setItem('searchTermValue', 'Jigglypuff');
 
-    render(<SearchInput />);
+    render(<SearchInput onClosePokemonDetails={() => {}} />);
 
     const inputElement = screen.getByPlaceholderText('Поиск...');
 
