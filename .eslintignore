@@ -1,4 +1,3 @@
-vite.config.ts
 jest.config.js
 jest.config.mjs
 jest-setup.ts
@@ -9,7 +8,6 @@ dist/
 package.json
 package-lock.json
 tsconfig.json
-tsconfig.node.json
 .prettierrc
 block-navigation.js
 prettify.js
