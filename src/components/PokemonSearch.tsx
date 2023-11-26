@@ -94,7 +94,7 @@ export const PokemonSearch: React.FC = () => {
       <div className="content container">
         <div className="top-section">
           <PageInput />
-          <SearchInput />
+          <SearchInput onClosePokemonDetails={handleSearchResultClose} />
         </div>
 
         <div className="bottom-section">
