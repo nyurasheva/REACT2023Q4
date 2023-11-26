@@ -1,0 +1,50 @@
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.vscode/
+.idea/
+
+# Editor files
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# MacOS-specific files
+.DS_Store
+
+# Compiled output
+node_modules/
+dist/
+dist-ssr/
+coverage/
+.build/
+.out/
+.vercel/
+.next/
+build/
+
+# Yarn and npm install state
+.yarn/install-state.gz
+.pnp.js
+.pnp
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local environment files
+.env*.local
+
+# TypeScript specific
+*.tsbuildinfo
+next-env.d.ts
