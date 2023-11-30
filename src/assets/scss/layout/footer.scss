@@ -1,0 +1,19 @@
+/* footer */
+
+.footer {
+  border-top: 1px solid #e1e1e1;
+  flex-shrink: 0;
+  margin-top: 30px;
+  @include font($family: $font-family-title);
+
+  .row {
+    padding: 20px;
+    @include flex($justify: center, $align: start, $wrap: wrap);
+    gap: 10px 40px;
+
+    @include media('l') {
+      @include flexColumn($align: stretch);
+      gap: 2px;
+    }
+  }
+}
