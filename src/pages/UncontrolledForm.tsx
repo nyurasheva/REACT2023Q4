@@ -1,26 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { setFormData, setFormValid } from '../redux/formReducer';
+import { saveFormData, setFormData, setFormValid } from '../redux/formReducer';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { useAppSelector } from '../redux/hooks';
 import * as Yup from 'yup';
 import { FormValidationSchema } from '../components/FormValidationSchema';
 import { fields } from '../constants/fields';
-import { Errors, FieldName, FormData } from '../types/interfaces';
+import { Errors, FieldName } from '../types/interfaces';
 import { MAIN_ROUTE } from '../constants/route';
 import { convertToBase64, validateFile } from '../utils/convertToBase64';
 
 const UncontrolledForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { formData, formValid } = useAppSelector(
-    (state) => state.formState
-  ) as {
-    formData: FormData;
-    formValid: boolean;
-  };
+  const { formData, formValid } = useAppSelector((state) => state.formState);
   const [errors, setErrors] = useState<Errors>({
     firstName: '',
     age: '',
@@ -85,6 +80,7 @@ const UncontrolledForm = () => {
     }
 
     dispatch(setFormData(formData));
+    dispatch(saveFormData());
     dispatch(setFormValid(true));
     setErrors({});
   };

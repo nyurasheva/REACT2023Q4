@@ -15,6 +15,14 @@ export interface FormState {
   formValid: boolean;
 }
 
+export interface FormWithId extends FormData {
+  id: number;
+}
+
+export interface ExtendedFormState extends FormState {
+  formHistory: FormWithId[];
+}
+
 export interface Errors {
   [key: string]: string;
 }

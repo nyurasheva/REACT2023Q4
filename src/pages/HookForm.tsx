@@ -7,7 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '../redux/hooks';
 import { FormValidationSchema } from '../components/FormValidationSchema';
-import { setFormData, setFormValid } from '../redux/formReducer';
+import { saveFormData, setFormData, setFormValid } from '../redux/formReducer';
 import { Footer } from '../components/Footer';
 import { Header } from '../components/Header';
 import { fields } from '../constants/fields';
@@ -58,6 +58,7 @@ const ReactHookForm = () => {
 
   const onSubmit = (data: FormData) => {
     dispatch(setFormData(data));
+    dispatch(saveFormData());
     dispatch(setFormValid(true));
     reset();
   };

@@ -5,11 +5,25 @@ import { Footer } from '../components/Footer';
 import { NavLink } from 'react-router-dom';
 import { useAppSelector } from '../redux/hooks';
 import { fields } from '../constants/fields';
-import { FieldName } from '../types/interfaces';
+import { FieldName, FormWithId } from '../types/interfaces';
 import { HOOK_ROUTE, UNCONTROLLED_ROUTE } from '../constants/route';
+import { selectFormHistory } from '../redux/formReducer';
+import { useEffect, useState } from 'react';
 
 const Main = () => {
-  const { formData } = useAppSelector((state) => state.formState);
+  const formHistory = useAppSelector(selectFormHistory);
+  const [lastFormId, setLastFormId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const lastFormData = formHistory[formHistory.length - 1];
+    if (lastFormData) {
+      setLastFormId(lastFormData.id);
+      const timer = setTimeout(() => {
+        setLastFormId(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [formHistory]);
 
   return (
     <div className="tygh">
@@ -28,9 +42,15 @@ const Main = () => {
             </NavLink>
           </li>
         </ul>
-        {formData.firstName && (
-          <div>
-            <h1>Отображение данных</h1>
+        <h1>Отображение данных</h1>
+        {formHistory.map((formData: FormWithId) => (
+          <div
+            key={formData.id}
+            className={
+              lastFormId === formData.id ? 'changed-data' : 'main__form'
+            }
+          >
+            <h2>Форма {formData.id}</h2>
             <img
               className="main__img"
               src={formData.image.toString()}
@@ -40,14 +60,14 @@ const Main = () => {
               name !== 'image' ? (
                 <label key={name} className="label">
                   <p>
-                    {label}
+                    {label}{' '}
                     {name !== 'terms' ? formData[name as FieldName] : 'Да'}
                   </p>
                 </label>
               ) : null
             )}
           </div>
-        )}
+        ))}
       </main>
       <Footer />
     </div>

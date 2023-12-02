@@ -13,4 +13,15 @@
     padding-bottom: 25px;
     border-bottom: 1px solid #e1e1e1;
   }
+
+  &__form {
+    margin: 15px;
+    border: 1px solid #07c;
+    padding: 10px;
+  }
+}
+
+.changed-data {
+  border: 2px solid red;
+  transition: border-color 0.5s ease;
 }

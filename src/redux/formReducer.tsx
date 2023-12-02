@@ -1,9 +1,9 @@
 // formReducer.tsx
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { FormState, FormData } from '../types/interfaces';
+import { ExtendedFormState, FormData, FormWithId } from '../types/interfaces';
 
-const initialState: FormState = {
+const initialState: ExtendedFormState = {
   formData: {
     firstName: '',
     age: 0,
@@ -16,6 +16,7 @@ const initialState: FormState = {
     country: '',
   },
   formValid: false,
+  formHistory: [],
 };
 
 export const formSlice = createSlice({
@@ -28,9 +29,19 @@ export const formSlice = createSlice({
     setFormValid(state, action: PayloadAction<boolean>) {
       state.formValid = action.payload;
     },
+    saveFormData(state) {
+      const id = state.formHistory.length + 1;
+      const formDataWithId: FormWithId = { ...state.formData, id };
+      state.formHistory.push(formDataWithId);
+      state.formData = initialState.formData;
+      state.formValid = initialState.formValid;
+    },
   },
 });
 
-export const { setFormData, setFormValid } = formSlice.actions;
+export const selectFormHistory = (state: { formState: ExtendedFormState }) =>
+  state.formState.formHistory;
+
+export const { setFormData, setFormValid, saveFormData } = formSlice.actions;
 
 export default formSlice.reducer;
