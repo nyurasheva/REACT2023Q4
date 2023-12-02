@@ -12,7 +12,7 @@ const initialState: FormState = {
     confirmPassword: '',
     gender: '',
     terms: false,
-    image: {} as FileList,
+    image: '',
     country: '',
   },
   formValid: false,

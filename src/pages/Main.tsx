@@ -27,11 +27,17 @@ const Main = () => {
         {formData.firstName && (
           <div>
             <h1>Отображение данных</h1>
-            {fields.map(({ label, name }) => (
-              <p key={name}>
-                {label} {name !== 'terms' ? formData[name as FieldName] : 'Да'}
-              </p>
-            ))}
+            <img className="main__img" src={formData.image} />
+            {fields.map(({ label, name }) =>
+              name !== 'image' ? (
+                <label key={name} className="label">
+                  <p>
+                    {label}
+                    {name !== 'terms' ? formData[name as FieldName] : 'Да'}
+                  </p>
+                </label>
+              ) : null
+            )}
           </div>
         )}
       </main>

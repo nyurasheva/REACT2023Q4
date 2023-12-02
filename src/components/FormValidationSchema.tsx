@@ -7,6 +7,10 @@ export const FormValidationSchema = Yup.object().shape({
     .required('Имя обязательно для заполнения')
     .matches(/^[А-ЯA-Z]/, 'Имя должно начинаться с заглавной буквы'),
   age: Yup.number()
+    .transform((value, originalValue) => {
+      const parsedValue = Number(originalValue);
+      return isNaN(parsedValue) ? undefined : parsedValue;
+    })
     .positive('Возраст должен быть положительным числом')
     .integer('Возраст должен быть целым числом')
     .required('Возраст обязателен для заполнения'),
@@ -26,6 +30,6 @@ export const FormValidationSchema = Yup.object().shape({
     .required('Выберите пол')
     .oneOf(['Мужской', 'Женский', 'Другой'], 'Выберите один из вариантов'),
   country: Yup.string().required('Страна обязательна для заполнения'),
-  image: Yup.mixed().required('Выберите изображение'),
+  image: Yup.string().required('Выберите изображение'),
   terms: Yup.boolean().oneOf([true], 'Примите условия и положения'),
 });

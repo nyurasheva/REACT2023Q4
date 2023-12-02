@@ -13,6 +13,7 @@ import { Header } from '../components/Header';
 import { fields } from '../constants/fields';
 import { MAIN_ROUTE } from '../constants/route';
 import { FieldName, FormData } from '../types/interfaces';
+import { convertToBase64 } from '../utils/convertToBase64';
 
 const ReactHookForm = () => {
   const {
@@ -20,6 +21,8 @@ const ReactHookForm = () => {
     handleSubmit,
     formState: { errors, isValid },
     reset,
+    setValue,
+    setError,
   } = useForm({
     mode: 'onBlur',
     resolver: yupResolver(FormValidationSchema),
@@ -28,6 +31,43 @@ const ReactHookForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { formValid } = useAppSelector((state) => state.formState);
+
+  const onFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+
+    if (selectedFile) {
+      const fieldName = event.target.name;
+      const fileErrors = validateFile(selectedFile, fieldName);
+      if (Object.keys(fileErrors).length === 0) {
+        try {
+          const base64String = await convertToBase64(selectedFile);
+          setValue('image', base64String);
+        } catch (error) {
+          console.error('Ошибка при конвертации файла в Base64:', error);
+        }
+      } else {
+        Object.keys(fileErrors).forEach((key) => {
+          const errorMessage = fileErrors[key];
+          setError(key as FieldName, { type: 'manual', message: errorMessage });
+        });
+      }
+    }
+  };
+
+  const validateFile = (file: File, name: string) => {
+    const allowedTypes = ['image/jpeg', 'image/png'];
+    const maxSize = 1024 * 1024;
+    const errors = {} as Record<string, string>;
+
+    if (!allowedTypes.includes(file.type)) {
+      errors[name] = 'Недопустимый тип файла';
+    }
+    if (file.size > maxSize) {
+      errors[name] = 'Файл слишком большой';
+    }
+
+    return errors;
+  };
 
   const onSubmit = (data: FormData) => {
     dispatch(setFormData(data));
@@ -53,9 +93,13 @@ const ReactHookForm = () => {
               {fields.map(({ label, name, type, options }) => (
                 <label key={name} className="label">
                   <span>{label}</span>
-                  {type !== 'radio' ? (
-                    <input {...register(name as FieldName)} type={type} />
-                  ) : (
+                  {type === 'file' ? (
+                    <input
+                      name={name}
+                      type={type}
+                      onChange={(e) => onFileSelect(e)}
+                    />
+                  ) : type === 'radio' ? (
                     <div>
                       {options?.map((option: string) => (
                         <label key={option}>
@@ -68,9 +112,13 @@ const ReactHookForm = () => {
                         </label>
                       ))}
                     </div>
+                  ) : (
+                    <input {...register(name as FieldName)} type={type} />
                   )}
                   {errors[name as FieldName] && (
-                    <span>{errors[name as FieldName]?.message}</span>
+                    <div className="error-message">
+                      {errors[name as FieldName]?.message}
+                    </div>
                   )}
                 </label>
               ))}

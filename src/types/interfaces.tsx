@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface FormData {
   firstName: string;
   age: number;
@@ -6,7 +5,7 @@ export interface FormData {
   password: string;
   confirmPassword: string;
   gender: string;
-  image: any;
+  image: string;
   country: string;
   terms?: boolean;
 }
