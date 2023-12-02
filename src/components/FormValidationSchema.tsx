@@ -5,7 +5,7 @@ import * as Yup from 'yup';
 export const FormValidationSchema = Yup.object().shape({
   firstName: Yup.string()
     .required('Имя обязательно для заполнения')
-    .matches(/^[A-Z]/, 'Имя должно начинаться с заглавной буквы'),
+    .matches(/^[А-ЯA-Z]/, 'Имя должно начинаться с заглавной буквы'),
   age: Yup.number()
     .positive('Возраст должен быть положительным числом')
     .integer('Возраст должен быть целым числом')
@@ -25,7 +25,7 @@ export const FormValidationSchema = Yup.object().shape({
   gender: Yup.string()
     .required('Выберите пол')
     .oneOf(['Мужской', 'Женский', 'Другой'], 'Выберите один из вариантов'),
-  terms: Yup.boolean().oneOf([true], 'Примите условия и положения'),
-  image: Yup.string().required('Выберите изображение'),
   country: Yup.string().required('Страна обязательна для заполнения'),
+  image: Yup.mixed().required('Выберите изображение'),
+  terms: Yup.boolean().oneOf([true], 'Примите условия и положения'),
 });

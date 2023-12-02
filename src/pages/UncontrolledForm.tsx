@@ -1,25 +1,20 @@
-// UncontrolledForm.tsx
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { updateFormData } from '../redux/formReducer';
+import { setFormData, setFormValid } from '../redux/formReducer'; // Импорт экшена сохранения изображения
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { useAppSelector } from '../redux/hooks';
 import * as Yup from 'yup';
 import { FormValidationSchema } from '../components/FormValidationSchema';
-
-interface Errors {
-  [key: string]: string;
-}
+import { fields } from '../constants/fields';
+import { Errors, FieldName } from '../types/interfaces';
+import { MAIN_ROUTE } from '../constants/route';
 
 const UncontrolledForm = () => {
   const dispatch = useDispatch();
-  const { formData } = useAppSelector((state) => state.formState);
-  const [selectedOption, setSelectedOption] = useState('');
-  const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedOption(event.target.value);
-  };
+  const navigate = useNavigate();
+  const { formData, formValid } = useAppSelector((state) => state.formState);
   const [errors, setErrors] = useState<Errors>({
     firstName: '',
     age: '',
@@ -37,56 +32,55 @@ const UncontrolledForm = () => {
       | HTMLInputElement
       | HTMLSelectElement
       | HTMLTextAreaElement
-      | (HTMLInputElement & { files: FileList })
+      | (HTMLInputElement & { target: { files: FileList } })
     >
   ) => {
-    const { name, value } = e.target;
-    const updatedFormData = { ...formData, [name]: value };
-    dispatch(updateFormData(updatedFormData));
-
-    FormValidationSchema.validateAt(name, { [name]: value })
-      .then(() => setErrors((prevErrors) => ({ ...prevErrors, [name]: '' })))
-      .catch((error) => {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          [name]: error.errors[0],
-        }));
-      });
+    const { name, value, type } = e.target;
+    const newValue =
+      type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+    const updatedFormData = { ...formData, [name]: newValue };
+    dispatch(setFormData(updatedFormData));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      await FormValidationSchema.validate(formData, { abortEarly: false });
-      console.log('Форма валидна');
-      // Отправка данных или действия по успешной валидации
-      setErrors({});
-    } catch (validationErrors) {
-      const formattedErrors: Errors = {};
-      if (validationErrors instanceof Yup.ValidationError) {
-        validationErrors.inner.forEach((error) => {
-          if (error.path) {
-            formattedErrors[error.path] = error.message;
-          }
+    const newErrors: Errors = {};
+
+    // Перебор всех полей и валидация их значений
+    for (const { name } of fields) {
+      try {
+        await FormValidationSchema.validateAt(name as FieldName, formData, {
+          abortEarly: false,
         });
+      } catch (error) {
+        if (error instanceof Yup.ValidationError) {
+          newErrors[name as FieldName] = error.errors[0];
+        }
       }
-      setErrors(formattedErrors);
     }
+    if (Object.keys(newErrors).length > 0) {
+      console.log('Форма12');
+      setErrors(newErrors);
+      return;
+    }
+    console.log('Форма валидна');
+    console.log(formData);
+    dispatch(setFormData(formData));
+    dispatch(setFormValid(true));
+    setErrors({});
   };
 
   const renderInputField = (
     fieldLabel: string,
-    fieldName: keyof Errors,
-    fieldType = 'text',
-    isPassword = false
+    fieldName: string,
+    fieldType = 'text'
   ) => (
     <label className="label" key={fieldName}>
-      <span>{fieldLabel}:</span>
+      <span>{fieldLabel}</span>
       <input
         type={fieldType}
         name={String(fieldName)}
         onChange={handleChange}
-        {...(isPassword && { type: 'password' })}
       />
       {errors[fieldName] && (
         <div className="error-message">{errors[fieldName]}</div>
@@ -94,25 +88,39 @@ const UncontrolledForm = () => {
     </label>
   );
 
-  const renderRadioButtons = (fieldName: string, options: string[]) => (
+  const renderRadioButtons = (
+    fieldLabel: string,
+    fieldName: string,
+    options: string[] = []
+  ) => (
     <label className="label" key={fieldName}>
-      <span>{fieldName}:</span>
+      <span>{fieldLabel}</span>
       <div>
         {options.map((option) => (
           <label key={option}>
             <input
               type="radio"
-              name="gender"
+              name={fieldName}
               value={option}
-              checked={selectedOption === option}
-              onChange={handleOptionChange}
+              checked={formData[fieldName as FieldName] === option}
+              onChange={handleChange}
             />
             {option}
           </label>
         ))}
       </div>
+      {errors[fieldName] && (
+        <div className="error-message">{errors[fieldName]}</div>
+      )}
     </label>
   );
+
+  useEffect(() => {
+    if (formValid) {
+      dispatch(setFormValid(false));
+      navigate(MAIN_ROUTE);
+    }
+  }, [dispatch, formValid, navigate]);
 
   return (
     <div className="tygh">
@@ -122,23 +130,10 @@ const UncontrolledForm = () => {
           <h1>Неконтролируемая форма</h1>
           <div className="form__wrapper">
             <form onSubmit={handleSubmit}>
-              {renderInputField('Имя', 'firstName')}
-              {renderInputField('Возраст', 'age', 'number')}
-              {renderInputField('Email', 'email', 'email')}
-              {renderInputField('Пароль', 'password', 'password', true)}
-              {renderInputField(
-                'Подтвердите пароль',
-                'confirmPassword',
-                'password',
-                true
-              )}
-              {renderRadioButtons('Пол', ['Мужской', 'Женский', 'Другой'])}
-              {renderInputField('Страна', 'country')}
-              {renderInputField('Загрузить изображение', 'image', 'file')}
-              {renderInputField(
-                'Принять условия и положения',
-                'terms',
-                'checkbox'
+              {fields.map(({ label, name, type, options }) =>
+                type !== 'radio'
+                  ? renderInputField(label, name, type)
+                  : renderRadioButtons(label, name, options)
               )}
               <button type="submit" className="button button-second button">
                 Отправить
