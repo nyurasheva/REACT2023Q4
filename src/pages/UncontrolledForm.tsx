@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { setFormData, setFormValid } from '../redux/formReducer'; // Импорт экшена сохранения изображения
+import { setFormData, setFormValid } from '../redux/formReducer';
 import { Header } from '../components/Header';
 import { Footer } from '../components/Footer';
 import { useAppSelector } from '../redux/hooks';
 import * as Yup from 'yup';
 import { FormValidationSchema } from '../components/FormValidationSchema';
 import { fields } from '../constants/fields';
-import { Errors, FieldName } from '../types/interfaces';
+import { Errors, FieldName, FormData } from '../types/interfaces';
 import { MAIN_ROUTE } from '../constants/route';
+import { convertToBase64, validateFile } from '../utils/convertToBase64';
 
 const UncontrolledForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { formData, formValid } = useAppSelector((state) => state.formState);
+  const { formData, formValid } = useAppSelector(
+    (state) => state.formState
+  ) as {
+    formData: FormData;
+    formValid: boolean;
+  };
   const [errors, setErrors] = useState<Errors>({
     firstName: '',
     age: '',
@@ -42,11 +48,25 @@ const UncontrolledForm = () => {
     dispatch(setFormData(updatedFormData));
   };
 
+  const onImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile) {
+      const fileErrors = validateFile(selectedFile, 'image');
+      if (Object.keys(fileErrors).length > 0) {
+        setErrors(fileErrors);
+      } else {
+        const base64String = await convertToBase64(selectedFile);
+        const updatedFormData = { ...formData, image: base64String };
+        dispatch(setFormData(updatedFormData));
+        setErrors({});
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const newErrors: Errors = {};
 
-    // Перебор всех полей и валидация их значений
     for (const { name } of fields) {
       try {
         await FormValidationSchema.validateAt(name as FieldName, formData, {
@@ -58,17 +78,23 @@ const UncontrolledForm = () => {
         }
       }
     }
+
     if (Object.keys(newErrors).length > 0) {
-      console.log('Форма12');
       setErrors(newErrors);
       return;
     }
-    console.log('Форма валидна');
-    console.log(formData);
+
     dispatch(setFormData(formData));
     dispatch(setFormValid(true));
     setErrors({});
   };
+
+  useEffect(() => {
+    if (formValid) {
+      dispatch(setFormValid(false));
+      navigate(MAIN_ROUTE);
+    }
+  }, [dispatch, formValid, navigate]);
 
   const renderInputField = (
     fieldLabel: string,
@@ -93,7 +119,7 @@ const UncontrolledForm = () => {
     fieldName: string,
     options: string[] = []
   ) => (
-    <label className="label" key={fieldName}>
+    <div key={fieldName} className="label">
       <span>{fieldLabel}</span>
       <div>
         {options.map((option) => (
@@ -112,15 +138,8 @@ const UncontrolledForm = () => {
       {errors[fieldName] && (
         <div className="error-message">{errors[fieldName]}</div>
       )}
-    </label>
+    </div>
   );
-
-  useEffect(() => {
-    if (formValid) {
-      dispatch(setFormValid(false));
-      navigate(MAIN_ROUTE);
-    }
-  }, [dispatch, formValid, navigate]);
 
   return (
     <div className="tygh">
@@ -130,11 +149,23 @@ const UncontrolledForm = () => {
           <h1>Неконтролируемая форма</h1>
           <div className="form__wrapper">
             <form onSubmit={handleSubmit}>
-              {fields.map(({ label, name, type, options }) =>
-                type !== 'radio'
-                  ? renderInputField(label, name, type)
-                  : renderRadioButtons(label, name, options)
-              )}
+              {fields.map(({ label, name, type, options }) => (
+                <React.Fragment key={name}>
+                  {type === 'file' ? (
+                    <label className="label label-image">
+                      <span>Изображение</span>
+                      <input type="file" name={name} onChange={onImageSelect} />
+                      {errors[name] && (
+                        <div className="error-message">{errors[name]}</div>
+                      )}
+                    </label>
+                  ) : type === 'radio' ? (
+                    renderRadioButtons(label, name, options)
+                  ) : (
+                    renderInputField(label, name, type)
+                  )}
+                </React.Fragment>
+              ))}
               <button type="submit" className="button button-second button">
                 Отправить
               </button>

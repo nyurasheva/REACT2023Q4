@@ -13,7 +13,7 @@ import { Header } from '../components/Header';
 import { fields } from '../constants/fields';
 import { MAIN_ROUTE } from '../constants/route';
 import { FieldName, FormData } from '../types/interfaces';
-import { convertToBase64 } from '../utils/convertToBase64';
+import { convertToBase64, validateFile } from '../utils/convertToBase64';
 
 const ReactHookForm = () => {
   const {
@@ -23,6 +23,7 @@ const ReactHookForm = () => {
     reset,
     setValue,
     setError,
+    trigger,
   } = useForm({
     mode: 'onBlur',
     resolver: yupResolver(FormValidationSchema),
@@ -42,6 +43,7 @@ const ReactHookForm = () => {
         try {
           const base64String = await convertToBase64(selectedFile);
           setValue('image', base64String);
+          trigger('image');
         } catch (error) {
           console.error('Ошибка при конвертации файла в Base64:', error);
         }
@@ -52,21 +54,6 @@ const ReactHookForm = () => {
         });
       }
     }
-  };
-
-  const validateFile = (file: File, name: string) => {
-    const allowedTypes = ['image/jpeg', 'image/png'];
-    const maxSize = 1024 * 1024;
-    const errors = {} as Record<string, string>;
-
-    if (!allowedTypes.includes(file.type)) {
-      errors[name] = 'Недопустимый тип файла';
-    }
-    if (file.size > maxSize) {
-      errors[name] = 'Файл слишком большой';
-    }
-
-    return errors;
   };
 
   const onSubmit = (data: FormData) => {
@@ -91,7 +78,7 @@ const ReactHookForm = () => {
           <div className="form__wrapper">
             <form onSubmit={handleSubmit(onSubmit)}>
               {fields.map(({ label, name, type, options }) => (
-                <label key={name} className="label">
+                <label key={name} className="label label-image">
                   <span>{label}</span>
                   {type === 'file' ? (
                     <input

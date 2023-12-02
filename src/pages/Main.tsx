@@ -15,19 +15,27 @@ const Main = () => {
     <div className="tygh">
       <Header />
       <main>
-        <h1>Main Page</h1>
-        <ul>
+        <h1>Главная страница</h1>
+        <ul className="main__button">
           <li>
-            <NavLink to={UNCONTROLLED_ROUTE}>Uncontrolled Form</NavLink>
+            <NavLink to={UNCONTROLLED_ROUTE} className="button">
+              Uncontrolled Form
+            </NavLink>
           </li>
           <li>
-            <NavLink to={HOOK_ROUTE}>React Hook Form</NavLink>
+            <NavLink to={HOOK_ROUTE} className="button button-second">
+              React Hook Form
+            </NavLink>
           </li>
         </ul>
         {formData.firstName && (
           <div>
             <h1>Отображение данных</h1>
-            <img className="main__img" src={formData.image} />
+            <img
+              className="main__img"
+              src={formData.image.toString()}
+              alt="Uploaded"
+            />
             {fields.map(({ label, name }) =>
               name !== 'image' ? (
                 <label key={name} className="label">

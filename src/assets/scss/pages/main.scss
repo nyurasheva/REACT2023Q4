@@ -1,6 +1,16 @@
 /* main pages*/
 
-.main__img {
-  width: 200px;
-  height: 200px;
+.main {
+  &__img {
+    width: 200px;
+    height: 200px;
+  }
+
+  &__button {
+    @include flex();
+    gap: 80px;
+    margin-top: 20px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #e1e1e1;
+  }
 }
