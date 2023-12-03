@@ -53,6 +53,10 @@ export interface AutoCompleteProps {
   register: UseFormRegister<CountryField>;
 }
 
+export interface CountriesState {
+  countries: IData[];
+}
+
 export type FieldName =
   | 'firstName'
   | 'age'

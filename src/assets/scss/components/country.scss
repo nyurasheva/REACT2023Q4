@@ -4,21 +4,6 @@
   position: relative;
   width: 320px;
 
-  &__options {
-    display: block;
-    width: 200vw;
-    height: 200vh;
-    background-color: transparent;
-    position: fixed;
-    z-index: 0;
-    top: 0;
-    left: 0;
-
-    &.off {
-      display: none;
-    }
-  }
-
   &__input {
     width: 100%;
     padding-left: 8px;
@@ -49,10 +34,12 @@
     transition: all 150ms linear;
     transform-origin: center;
     display: flex;
-    background: url(/src/assets/svg/arrowdown.svg) no-repeat center center/cover;
+    background: url(/src/assets/svg/check.svg) no-repeat center center/cover;
 
     &.open {
-      transform: rotate(0.5turn);
+      // transform: rotate(0.5turn);
+      background: url(/src/assets/svg/arrowdown.svg) no-repeat center
+        center/cover;
     }
   }
 

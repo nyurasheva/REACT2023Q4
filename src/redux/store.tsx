@@ -2,10 +2,12 @@
 
 import { configureStore } from '@reduxjs/toolkit';
 import formSlice from './formReducer';
+import countriesSlice from './countriesReducer';
 
 const store = configureStore({
   reducer: {
     formState: formSlice,
+    countriesState: countriesSlice,
   },
 });
 

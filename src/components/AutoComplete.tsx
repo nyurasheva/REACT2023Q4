@@ -1,22 +1,27 @@
 // AutoComplete.tsx
 
 import { ChangeEvent, useState } from 'react';
-import country from '../constants/country.json';
 import { IData, AutoCompleteProps } from '../types/interfaces';
+import { useAppSelector } from '../redux/hooks';
 
 const AutoComplete = ({ register }: AutoCompleteProps) => {
+  const { countries } = useAppSelector((state) => state.countriesState);
+
   const [search, setSearch] = useState({
     text: '',
     suggestions: [] as IData[],
   });
-  const [isComponentVisible, setIsComponentVisible] = useState(false);
+  const [isComponentVisible, setIsComponentVisible] = useState(true);
 
   const onTextChanged = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     let suggestions: IData[] = [];
     if (value.length > 0) {
       const regex = new RegExp(`^${value}`, 'i');
-      suggestions = country.sort().filter((v: IData) => regex.test(v.name));
+      const countriesCopy = [...countries];
+      suggestions = countriesCopy
+        .sort()
+        .filter((v: IData) => regex.test(v.name));
     }
     setIsComponentVisible(true);
     setSearch({ suggestions, text: value });
@@ -33,12 +38,10 @@ const AutoComplete = ({ register }: AutoCompleteProps) => {
 
   const { suggestions } = search;
 
+  // console.log(isComponentVisible);
+
   return (
     <div className="country">
-      <div
-        className={`country__options ${isComponentVisible ? 'off' : ''}`}
-        onClick={() => setIsComponentVisible(false)}
-      />
       <div>
         <input
           {...register('country')}
