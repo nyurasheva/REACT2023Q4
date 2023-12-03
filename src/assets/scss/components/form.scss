@@ -157,7 +157,7 @@ input[type='file'] + .error-message {
 .password__error {
   position: absolute;
   color: $important;
-  font-size: $font-size-12;
+  font-size: 11px;
 
   @include media('xxs') {
     font-size: 10px;
