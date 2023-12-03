@@ -1,3 +1,5 @@
+import { UseFormRegister } from 'react-hook-form';
+
 export interface FormData {
   firstName: string;
   age: number;
@@ -27,6 +29,30 @@ export interface Errors {
   [key: string]: string;
 }
 
+export interface IData {
+  name: string;
+  code: string;
+}
+export interface CountryField {
+  firstName: string;
+  age: number;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  gender: string;
+  image: string;
+  country: string;
+  terms?: boolean;
+}
+
+export interface CountryField extends Omit<FormData, 'image'> {
+  image: string;
+}
+
+export interface AutoCompleteProps {
+  register: UseFormRegister<CountryField>;
+}
+
 export type FieldName =
   | 'firstName'
   | 'age'
@@ -34,3 +60,7 @@ export type FieldName =
   | 'password'
   | 'gender'
   | 'country';
+
+export type CountryList = {
+  [key: string]: string;
+};

@@ -14,6 +14,7 @@ import { fields } from '../constants/fields';
 import { MAIN_ROUTE } from '../constants/route';
 import { FieldName, FormData } from '../types/interfaces';
 import { convertToBase64, validateFile } from '../utils/convertToBase64';
+import { AutoComplete } from '../components/AutoComplete';
 
 const ReactHookForm = () => {
   const {
@@ -79,7 +80,7 @@ const ReactHookForm = () => {
           <div className="form__wrapper">
             <form onSubmit={handleSubmit(onSubmit)}>
               {fields.map(({ label, name, type, options }) => (
-                <label key={name} className="label label-image">
+                <label key={name} className="label">
                   <span>{label}</span>
                   {type === 'file' ? (
                     <input
@@ -100,6 +101,8 @@ const ReactHookForm = () => {
                         </label>
                       ))}
                     </div>
+                  ) : name === 'country' ? (
+                    <AutoComplete register={register} />
                   ) : (
                     <input {...register(name as FieldName)} type={type} />
                   )}

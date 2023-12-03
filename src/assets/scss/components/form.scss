@@ -148,7 +148,7 @@
   }
 }
 
-.label-image .error-message {
+input[type='file'] + .error-message {
   top: 55px;
 }
 
