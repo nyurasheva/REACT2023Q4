@@ -1,0 +1,25 @@
+// abstract
+//Шаблоны - глобальные переменные, функции, микшины и заполнители (код не выводит CSS, но предоставляет функциональность)
+@import 'abstracts/variables.scss';
+@import 'abstracts/mixins';
+
+/* Base */
+//Основные стили сайта (сброс стилей, типография, сеточная система и утилиты)
+@import 'base/reset';
+@import 'base/basic';
+
+/* Components */
+//Повторно используемые компоненты пользовательского интерфейса
+@import 'components/buttons';
+@import 'components/form';
+@import 'components/country';
+
+/* Layout */
+//Макет сайта (стили для шапки сайта, футера и боковой панели)
+@import 'layout/header';
+@import 'layout/footer';
+
+/* Pages */
+//Стили, специфичные для каждой страницы
+@import 'pages/main';
+@import 'pages/notFound';
