@@ -9,7 +9,7 @@ const AutoComplete = ({ register }: AutoCompleteProps) => {
     text: '',
     suggestions: [] as IData[],
   });
-  const [isComponentVisible, setIsComponentVisible] = useState(true);
+  const [isComponentVisible, setIsComponentVisible] = useState(false);
 
   const onTextChanged = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -50,7 +50,7 @@ const AutoComplete = ({ register }: AutoCompleteProps) => {
           type={'text'}
           className="country__input"
         />
-        <i className="country__icon" />
+        <i className={`country__icon ${isComponentVisible ? 'open' : ''}`} />
       </div>
       {suggestions.length > 0 && isComponentVisible && (
         <ul className="country__list">

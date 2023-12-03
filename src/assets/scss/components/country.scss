@@ -30,12 +30,12 @@
     line-height: 32px;
 
     &:focus {
-      border-color: #0063cc;
+      border-color: $links;
       outline: none;
 
       + .contry__icon {
-        color: #0063cc;
-        fill: #0063cc;
+        color: $links;
+        fill: $links;
       }
     }
   }
@@ -51,11 +51,7 @@
     display: flex;
     background: url(/src/assets/svg/arrowdown.svg) no-repeat center center/cover;
 
-    svg {
-      margin: auto;
-    }
-
-    &[isOpen='true'] {
+    &.open {
       transform: rotate(0.5turn);
     }
   }
@@ -64,12 +60,12 @@
     background: #fff;
     padding: 8px 0;
     list-style-type: none;
-    min-width: 320px;
+    min-width: 300px;
     position: absolute;
     top: 100%;
     left: 0;
     border: 1px solid #b6c1ce;
-    border-radius: 2px;
+    border-radius: 8px;
     margin: 0;
     box-sizing: border-box;
     max-height: 280px;
@@ -97,7 +93,7 @@
 
     &:active {
       outline: none;
-      color: #0076f5;
+      color: $links;
     }
   }
 }
