@@ -1,6 +1,6 @@
 // AutoComplete.tsx
 
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import { AutoCompleteProps, IData } from '../types/interfaces';
 import { useAppSelector } from '../redux/hooks';
 import { useDispatch } from 'react-redux';
@@ -41,6 +41,12 @@ const AutoComplete = ({ register }: AutoCompleteProps) => {
 
     dispatch(setFormData({ ...formData, country: value.name }));
   };
+
+  useEffect(() => {
+    if (!search.text && formData.country !== '') {
+      dispatch(setFormData({ ...formData, country: '' }));
+    }
+  }, [search.text, formData.country, dispatch, formData]);
 
   const { suggestions } = search;
 
