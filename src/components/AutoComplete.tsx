@@ -1,11 +1,15 @@
 // AutoComplete.tsx
 
 import { ChangeEvent, useState } from 'react';
-import { IData, AutoCompleteProps } from '../types/interfaces';
+import { AutoCompleteProps, IData } from '../types/interfaces';
 import { useAppSelector } from '../redux/hooks';
+import { useDispatch } from 'react-redux';
+import { setFormData } from '../redux/formReducer';
 
 const AutoComplete = ({ register }: AutoCompleteProps) => {
+  const dispatch = useDispatch();
   const { countries } = useAppSelector((state) => state.countriesState);
+  const { formData } = useAppSelector((state) => state.formState);
 
   const [search, setSearch] = useState({
     text: '',
@@ -13,7 +17,7 @@ const AutoComplete = ({ register }: AutoCompleteProps) => {
   });
   const [isComponentVisible, setIsComponentVisible] = useState(true);
 
-  const onTextChanged = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleTextChanged = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     let suggestions: IData[] = [];
     if (value.length > 0) {
@@ -27,29 +31,29 @@ const AutoComplete = ({ register }: AutoCompleteProps) => {
     setSearch({ suggestions, text: value });
   };
 
-  const suggestionSelected = (value: IData) => {
+  const handleSuggestionSelected = (value: IData) => {
     setIsComponentVisible(false);
 
     setSearch({
       text: value.name,
       suggestions: [],
     });
+
+    dispatch(setFormData({ ...formData, country: value.name }));
   };
 
   const { suggestions } = search;
-
-  // console.log(isComponentVisible);
 
   return (
     <div className="country">
       <div>
         <input
-          {...register('country')}
+          {...(register && register('country'))}
           id="input"
           name="country"
           autoComplete="off"
           value={search.text}
-          onChange={onTextChanged}
+          onChange={handleTextChanged}
           type={'text'}
           className="country__input"
         />
@@ -61,7 +65,7 @@ const AutoComplete = ({ register }: AutoCompleteProps) => {
             <li className="country__item" key={item.code}>
               <button
                 key={item.code}
-                onClick={() => suggestionSelected(item)}
+                onClick={() => handleSuggestionSelected(item)}
                 className="country__button"
               >
                 {item.name}

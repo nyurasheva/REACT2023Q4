@@ -33,24 +33,12 @@ export interface IData {
   name: string;
   code: string;
 }
-export interface CountryField {
-  firstName: string;
-  age: number;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  gender: string;
-  image: string;
-  country: string;
-  terms?: boolean;
-}
-
 export interface CountryField extends Omit<FormData, 'image'> {
   image: string;
 }
 
 export interface AutoCompleteProps {
-  register: UseFormRegister<CountryField>;
+  register: UseFormRegister<CountryField> | null;
 }
 
 export interface CountriesState {

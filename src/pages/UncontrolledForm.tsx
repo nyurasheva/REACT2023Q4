@@ -1,3 +1,5 @@
+// UncontrolledForm.tsx
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -11,6 +13,7 @@ import { fields } from '../constants/fields';
 import { Errors, FieldName } from '../types/interfaces';
 import { MAIN_ROUTE } from '../constants/route';
 import { convertToBase64, validateFile } from '../utils/convertToBase64';
+import { AutoComplete } from '../components/AutoComplete';
 
 const UncontrolledForm = () => {
   const dispatch = useDispatch();
@@ -149,7 +152,7 @@ const UncontrolledForm = () => {
                 <React.Fragment key={name}>
                   {type === 'file' ? (
                     <label className="label label-image">
-                      <span>Изображение</span>
+                      <span>Изображение:</span>
                       <input type="file" name={name} onChange={onImageSelect} />
                       {errors[name] && (
                         <div className="error-message">{errors[name]}</div>
@@ -157,6 +160,14 @@ const UncontrolledForm = () => {
                     </label>
                   ) : type === 'radio' ? (
                     renderRadioButtons(label, name, options)
+                  ) : name === 'country' ? (
+                    <label className="label">
+                      <span>Страна:</span>
+                      <AutoComplete register={null} />
+                      {errors[name] && (
+                        <div className="error-message">{errors[name]}</div>
+                      )}
+                    </label>
                   ) : (
                     renderInputField(label, name, type)
                   )}
